@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Admin Registration | SVR EdTech</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+
+<body
+    class="
+        min-h-screen
+        text-gray-900
+
+        bg-[linear-gradient(
+            to_bottom,
+            #FECA42_0%,
+            #FECA42_35%,
+            #e8ba4c_45%,
+            #9a8048_55%,
+            #00323F_72%,
+            #00323F_100%
+        )]
+    "
+>
+
+
+    <!-- ========================================= -->
+    <!-- MAIN CONTAINER -->
+    <!-- ========================================= -->
+
+    <main
+        class="
+            min-h-screen
+            flex
+            items-center
+            justify-center
+            px-5
+            py-10
+        "
+    >
+
+
+        <div
+            class="
+                w-full
+                max-w-6xl
+
+                flex
+                flex-col
+                lg:flex-row
+
+                items-center
+                justify-center
+
+                gap-10
+                lg:gap-16
+            "
+        >
+
+
+            <!-- ========================================= -->
+            <!-- LEFT SIDE - BRANDING -->
+            <!-- ========================================= -->
+
+            <section
+                class="
+                    w-full
+                    lg:w-[500px]
+
+                    text-center
+                    lg:text-left
+                "
+            >
+
+
+                <!-- LOGO -->
+
+                <div
+                    class="
+                        flex
+                        justify-center
+                        lg:justify-start
+
+                        mb-6
+                    "
+                >
+
+                    <img
+                        src="../assets/images/svr-edtech.png"
+                        alt="SVR EdTech"
+                        class="
+                            w-full
+                            max-w-[430px]
+                            h-auto
+                            object-contain
+                        "
+                    >
+
+                </div>
+
+
+                <!-- TAGLINE -->
+
+                <h1
+                    class="
+                        text-3xl
+                        md:text-4xl
+
+                        font-semibold
+
+                        leading-tight
+
+                        text-[#00323F]
+
+                        mb-4
+                    "
+                >
+
+                    One Platform.
+                    <br>
+                    Infinite Possibilities.
+
+                </h1>
+
+
+                <p
+                    class="
+                        text-lg
+                        text-gray-800
+
+                        max-w-md
+
+                        mx-auto
+                        lg:mx-0
+                    "
+                >
+
+                    Create your administrator account
+                    and securely manage your platform.
+
+                </p>
+
+
+            </section>
+
+
+
+            <!-- ========================================= -->
+            <!-- RIGHT SIDE - REGISTRATION -->
+            <!-- ========================================= -->
+
+            <section
+                class="
+                    w-full
+                    max-w-[500px]
+                "
+            >
+
+
+                <div
+                    class="
+                        bg-[#FCFBE6]
+
+                        rounded-xl
+
+                        shadow-2xl
+
+                        p-6
+                        md:p-7
+                    "
+                >
+
+
+                    <!-- ================================= -->
+                    <!-- HEADER -->
+                    <!-- ================================= -->
+
+                    <div
+                        class="
+                            text-center
+
+                            pb-5
+                            mb-5
+
+                            border-b
+                            border-gray-200
+                        "
+                    >
+
+                        <h2
+                            class="
+                                text-2xl
+                                md:text-3xl
+
+                                font-bold
+
+                                text-gray-900
+                            "
+                        >
+                            Create Admin Account
+                        </h2>
+
+
+                        <p
+                            class="
+                                text-gray-500
+                                text-sm
+                                mt-1
+                            "
+                        >
+                            It's quick and easy.
+                        </p>
+
+                    </div>
+
+
+
+                    <!-- ================================= -->
+                    <!-- FORM -->
+                    <!-- ================================= -->
+
+                    <form id="registrationForm">
+
+
+                        <!-- FIRST NAME + LAST NAME -->
+
+                        <div
+                            class="
+                                flex
+                                flex-col
+                                sm:flex-row
+
+                                gap-3
+
+                                mb-3
+                            "
+                        >
+
+                            <input
+                                type="text"
+                                id="firstName"
+                                name="firstName"
+
+                                placeholder="First name"
+
+                                autocomplete="given-name"
+
+                                required
+
+                                class="
+                                    w-full
+
+                                    px-3
+                                    py-3
+
+                                    bg-white
+
+                                    border
+                                    border-gray-300
+
+                                    rounded-md
+
+                                    outline-none
+
+                                    focus:ring-2
+                                    focus:ring-[#FECA42]
+
+                                    focus:border-transparent
+                                "
+                            >
+
+
+                            <input
+                                type="text"
+                                id="lastName"
+                                name="lastName"
+
+                                placeholder="Last name"
+
+                                autocomplete="family-name"
+
+                                required
+
+                                class="
+                                    w-full
+
+                                    px-3
+                                    py-3
+
+                                    bg-white
+
+                                    border
+                                    border-gray-300
+
+                                    rounded-md
+
+                                    outline-none
+
+                                    focus:ring-2
+                                    focus:ring-[#FECA42]
+
+                                    focus:border-transparent
+                                "
+                            >
+
+                        </div>
+
+
+
+                        <!-- EMAIL -->
+
+                        <div class="mb-3">
+
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+
+                                placeholder="Email address"
+
+                                autocomplete="email"
+
+                                required
+
+                                class="
+                                    w-full
+
+                                    px-3
+                                    py-3
+
+                                    bg-white
+
+                                    border
+                                    border-gray-300
+
+                                    rounded-md
+
+                                    outline-none
+
+                                    focus:ring-2
+                                    focus:ring-[#FECA42]
+
+                                    focus:border-transparent
+                                "
+                            >
+
+                        </div>
+
+
+
+                        <!-- PASSWORD -->
+
+                        <div
+                            class="
+                                relative
+                                mb-3
+                            "
+                        >
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+
+                                placeholder="New password"
+
+                                autocomplete="new-password"
+
+                                minlength="8"
+
+                                required
+
+                                class="
+                                    w-full
+
+                                    px-3
+                                    py-3
+                                    pr-16
+
+                                    bg-white
+
+                                    border
+                                    border-gray-300
+
+                                    rounded-md
+
+                                    outline-none
+
+                                    focus:ring-2
+                                    focus:ring-[#FECA42]
+
+                                    focus:border-transparent
+                                "
+                            >
+
+
+                            <button
+                                type="button"
+
+                                id="showPassword"
+
+                                class="
+                                    absolute
+
+                                    right-3
+                                    top-1/2
+
+                                    -translate-y-1/2
+
+                                    text-sm
+
+                                    font-semibold
+
+                                    text-gray-600
+
+                                    hover:text-[#00323F]
+                                "
+                            >
+
+                                Show
+
+                            </button>
+
+                        </div>
+
+
+
+                        <!-- CONFIRM PASSWORD -->
+
+                        <div
+                            class="
+                                relative
+                                mb-4
+                            "
+                        >
+
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                name="confirmPassword"
+
+                                placeholder="Confirm password"
+
+                                autocomplete="new-password"
+
+                                minlength="8"
+
+                                required
+
+                                class="
+                                    w-full
+
+                                    px-3
+                                    py-3
+                                    pr-16
+
+                                    bg-white
+
+                                    border
+                                    border-gray-300
+
+                                    rounded-md
+
+                                    outline-none
+
+                                    focus:ring-2
+                                    focus:ring-[#FECA42]
+
+                                    focus:border-transparent
+                                "
+                            >
+
+
+                            <button
+                                type="button"
+
+                                id="showConfirmPassword"
+
+                                class="
+                                    absolute
+
+                                    right-3
+                                    top-1/2
+
+                                    -translate-y-1/2
+
+                                    text-sm
+
+                                    font-semibold
+
+                                    text-gray-600
+
+                                    hover:text-[#00323F]
+                                "
+                            >
+
+                                Show
+
+                            </button>
+
+                        </div>
+
+
+
+                        <!-- ================================= -->
+                        <!-- ADMIN NOTICE -->
+                        <!-- ================================= -->
+
+                        <div
+                            class="
+                                bg-[#FECA42]/25
+
+                                border
+                                border-[#FECA42]
+
+                                rounded-md
+
+                                p-3
+
+                                mb-4
+                            "
+                        >
+
+                            <p
+                                class="
+                                    text-sm
+                                    text-gray-700
+                                "
+                            >
+
+                                <strong>Admin access:</strong>
+
+                                This account will have
+                                administrator privileges.
+
+                            </p>
+
+                        </div>
+
+
+
+                        <!-- ================================= -->
+                        <!-- TERMS -->
+                        <!-- ================================= -->
+
+                        <p
+                            class="
+                                text-xs
+                                text-gray-600
+
+                                mb-5
+
+                                leading-relaxed
+                            "
+                        >
+
+                            By clicking Sign Up, you agree to our
+
+                            <a
+                                href="#"
+                                class="
+                                    font-semibold
+                                    text-[#00323F]
+                                    hover:underline
+                                "
+                            >
+                                Terms
+                            </a>,
+
+                            <a
+                                href="#"
+                                class="
+                                    font-semibold
+                                    text-[#00323F]
+                                    hover:underline
+                                "
+                            >
+                                Privacy Policy
+                            </a>
+
+                            and
+
+                            <a
+                                href="#"
+                                class="
+                                    font-semibold
+                                    text-[#00323F]
+                                    hover:underline
+                                "
+                            >
+                                Cookies Policy
+                            </a>.
+
+                        </p>
+
+
+
+                        <!-- ================================= -->
+                        <!-- SIGN UP BUTTON -->
+                        <!-- ================================= -->
+
+                        <button
+                            type="submit"
+
+                            class="
+                                w-full
+
+                                bg-[#00323F]
+
+                                text-white
+
+                                font-bold
+
+                                py-3
+
+                                rounded-md
+
+                                hover:bg-[#004452]
+
+                                transition
+                            "
+                        >
+
+                            Sign Up
+
+                        </button>
+
+
+
+                        <!-- ================================= -->
+                        <!-- DIVIDER -->
+                        <!-- ================================= -->
+
+                        <div
+                            class="
+                                flex
+                                items-center
+
+                                my-5
+                            "
+                        >
+
+                            <div
+                                class="
+                                    flex-1
+                                    h-px
+                                    bg-gray-300
+                                "
+                            ></div>
+
+
+                            <span
+                                class="
+                                    px-4
+
+                                    text-sm
+
+                                    text-gray-500
+                                "
+                            >
+                                OR
+                            </span>
+
+
+                            <div
+                                class="
+                                    flex-1
+                                    h-px
+                                    bg-gray-300
+                                "
+                            ></div>
+
+                        </div>
+
+
+
+                        <!-- ================================= -->
+                        <!-- GOOGLE -->
+                        <!-- ================================= -->
+
+                        <button
+                            type="button"
+
+                            id="googleSignup"
+
+                            class="
+                                w-full
+
+                                flex
+                                items-center
+                                justify-center
+
+                                gap-3
+
+                                bg-white
+
+                                border
+                                border-gray-300
+
+                                py-3
+
+                                rounded-md
+
+                                hover:bg-gray-50
+
+                                transition
+
+                                mb-3
+                            "
+                        >
+
+                            <span
+                                class="
+                                    text-xl
+                                    font-bold
+                                "
+                            >
+                                G
+                            </span>
+
+
+                            <span
+                                class="
+                                    font-medium
+                                    text-gray-700
+                                "
+                            >
+                                Continue with Google
+                            </span>
+
+                        </button>
+
+
+
+                        <!-- ================================= -->
+                        <!-- MICROSOFT -->
+                        <!-- ================================= -->
+
+                        <button
+                            type="button"
+
+                            id="microsoftSignup"
+
+                            class="
+                                w-full
+
+                                flex
+                                items-center
+                                justify-center
+
+                                gap-3
+
+                                bg-white
+
+                                border
+                                border-gray-300
+
+                                py-3
+
+                                rounded-md
+
+                                hover:bg-gray-50
+
+                                transition
+
+                                mb-3
+                            "
+                        >
+
+                            <span
+                                class="
+                                    text-xl
+                                    font-bold
+                                "
+                            >
+                                ⊞
+                            </span>
+
+
+                            <span
+                                class="
+                                    font-medium
+                                    text-gray-700
+                                "
+                            >
+                                Continue with Microsoft
+                            </span>
+
+                        </button>
+
+
+
+                        <!-- ================================= -->
+                        <!-- LINKEDIN -->
+                        <!-- ================================= -->
+
+                        <button
+                            type="button"
+
+                            id="linkedinSignup"
+
+                            class="
+                                w-full
+
+                                flex
+                                items-center
+                                justify-center
+
+                                gap-3
+
+                                bg-white
+
+                                border
+                                border-gray-300
+
+                                py-3
+
+                                rounded-md
+
+                                hover:bg-gray-50
+
+                                transition
+                            "
+                        >
+
+                            <span
+                                class="
+                                    text-xl
+                                    font-bold
+                                "
+                            >
+                                in
+                            </span>
+
+
+                            <span
+                                class="
+                                    font-medium
+                                    text-gray-700
+                                "
+                            >
+                                Continue with LinkedIn
+                            </span>
+
+                        </button>
+
+
+
+                        <!-- ================================= -->
+                        <!-- LOGIN LINK -->
+                        <!-- ================================= -->
+
+                        <p
+                            class="
+                                text-center
+
+                                text-sm
+
+                                text-gray-600
+
+                                mt-6
+                            "
+                        >
+
+                            Already have an admin account?
+
+                            <a
+                                href="login.html"
+
+                                class="
+                                    font-bold
+
+                                    text-[#00323F]
+
+                                    hover:underline
+                                "
+                            >
+                                Sign in
+                            </a>
+
+                        </p>
+
+
+                    </form>
+
+                </div>
+
+            </section>
+
+
+        </div>
+
+    </main>
+
+
+
+    <!-- ========================================= -->
+    <!-- JAVASCRIPT -->
+    <!-- ========================================= -->
+
+    <script>
+
+
+        // =========================================
+        // REGISTRATION FORM
+        // =========================================
+
+        const registrationForm =
+            document.getElementById(
+                "registrationForm"
+            );
+
+
+        registrationForm.addEventListener(
+            "submit",
+            function (event) {
+
+                event.preventDefault();
+
+
+                const password =
+                    document.getElementById(
+                        "password"
+                    ).value;
+
+
+                const confirmPassword =
+                    document.getElementById(
+                        "confirmPassword"
+                    ).value;
+
+
+                if (
+                    password !==
+                    confirmPassword
+                ) {
+
+                    alert(
+                        "Passwords do not match."
+                    );
+
+                    return;
+
+                }
+
+
+                alert(
+                    "Admin registration backend will be connected next."
+                );
+
+            }
+        );
+
+
+
+        // =========================================
+        // SHOW PASSWORD
+        // =========================================
+
+        const passwordInput =
+            document.getElementById(
+                "password"
+            );
+
+
+        const showPassword =
+            document.getElementById(
+                "showPassword"
+            );
+
+
+        showPassword.addEventListener(
+            "click",
+            function () {
+
+                if (
+                    passwordInput.type ===
+                    "password"
+                ) {
+
+                    passwordInput.type =
+                        "text";
+
+                    showPassword.textContent =
+                        "Hide";
+
+                } else {
+
+                    passwordInput.type =
+                        "password";
+
+                    showPassword.textContent =
+                        "Show";
+
+                }
+
+            }
+        );
+
+
+
+        // =========================================
+        // SHOW CONFIRM PASSWORD
+        // =========================================
+
+        const confirmPasswordInput =
+            document.getElementById(
+                "confirmPassword"
+            );
+
+
+        const showConfirmPassword =
+            document.getElementById(
+                "showConfirmPassword"
+            );
+
+
+        showConfirmPassword.addEventListener(
+            "click",
+            function () {
+
+                if (
+                    confirmPasswordInput.type ===
+                    "password"
+                ) {
+
+                    confirmPasswordInput.type =
+                        "text";
+
+                    showConfirmPassword.textContent =
+                        "Hide";
+
+                } else {
+
+                    confirmPasswordInput.type =
+                        "password";
+
+                    showConfirmPassword.textContent =
+                        "Show";
+
+                }
+
+            }
+        );
+
+
+
+        // =========================================
+        // GOOGLE
+        // =========================================
+
+        document.getElementById(
+            "googleSignup"
+        ).addEventListener(
+            "click",
+            function () {
+
+                alert(
+                    "Google authentication will be connected next."
+                );
+
+            }
+        );
+
+
+
+        // =========================================
+        // MICROSOFT
+        // =========================================
+
+        document.getElementById(
+            "microsoftSignup"
+        ).addEventListener(
+            "click",
+            function () {
+
+                alert(
+                    "Microsoft authentication will be connected next."
+                );
+
+            }
+        );
+
+
+
+        // =========================================
+        // LINKEDIN
+        // =========================================
+
+        document.getElementById(
+            "linkedinSignup"
+        ).addEventListener(
+            "click",
+            function () {
+
+                alert(
+                    "LinkedIn authentication will be connected next."
+                );
+
+            }
+        );
+
+
+    </script>
+
+
+</body>
+
+</html>
