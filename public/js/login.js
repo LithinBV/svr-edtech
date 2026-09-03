@@ -2,31 +2,44 @@
 // ELEMENTS
 // ============================================================
 
-const loginForm = document.getElementById("adminLoginForm");
+const loginForm =
+    document.getElementById("adminLoginForm");
 
-const otpForm = document.getElementById("otpForm");
+const otpForm =
+    document.getElementById("otpForm");
 
-const emailInput = document.getElementById("email");
+const emailInput =
+    document.getElementById("email");
 
-const passwordInput = document.getElementById("password");
+const passwordInput =
+    document.getElementById("password");
 
-const otpInput = document.getElementById("otp");
+const otpInput =
+    document.getElementById("otp");
 
-const loginButton = document.getElementById("loginButton");
+const loginButton =
+    document.getElementById("loginButton");
 
-const verifyOtpButton = document.getElementById("verifyOtpButton");
+const verifyOtpButton =
+    document.getElementById("verifyOtpButton");
 
-const loginMessage = document.getElementById("loginMessage");
+const loginMessage =
+    document.getElementById("loginMessage");
 
-const otpMessage = document.getElementById("otpMessage");
+const otpMessage =
+    document.getElementById("otpMessage");
 
-const otpEmail = document.getElementById("otpEmail");
+const otpEmail =
+    document.getElementById("otpEmail");
 
-const backToLogin = document.getElementById("backToLogin");
+const backToLogin =
+    document.getElementById("backToLogin");
 
-const loginHeading = document.getElementById("loginHeading");
+const loginHeading =
+    document.getElementById("loginHeading");
 
-const socialSection = document.getElementById("socialSection");
+const socialSection =
+    document.getElementById("socialSection");
 
 
 // ============================================================
@@ -47,44 +60,55 @@ loginForm.addEventListener("submit", async function (event) {
 
     // Get values
 
-    const email = emailInput.value.trim();
+    const email =
+        emailInput.value.trim();
 
-    const password = passwordInput.value;
+    const password =
+        passwordInput.value;
 
 
     // Clear old message
 
-    showMessage(loginMessage, "", false);
+    showMessage(
+        loginMessage,
+        "",
+        false
+    );
 
 
     // Disable button
 
     loginButton.disabled = true;
 
-    loginButton.textContent = "Sending OTP...";
+    loginButton.textContent =
+        "Sending OTP...";
 
 
     try {
 
         // Send email and password to backend
 
-        const response = await fetch("/api/auth/login", {
+        const response =
+            await fetch(
+                "/api/auth/login",
+                {
+                    method: "POST",
 
-            method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-                email: email,
-                password: password
-            })
-
-        });
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                }
+            );
 
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
 
         // Backend error
@@ -93,7 +117,8 @@ loginForm.addEventListener("submit", async function (event) {
 
             showMessage(
                 loginMessage,
-                data.message || "Login failed.",
+                data.message ||
+                    "Login failed.",
                 true
             );
 
@@ -103,7 +128,8 @@ loginForm.addEventListener("submit", async function (event) {
 
         // Save email
 
-        loginEmail = data.email || email;
+        loginEmail =
+            data.email || email;
 
 
         // Show OTP section
@@ -113,7 +139,10 @@ loginForm.addEventListener("submit", async function (event) {
 
     } catch (error) {
 
-        console.error("Login error:", error);
+        console.error(
+            "Login error:",
+            error
+        );
 
         showMessage(
             loginMessage,
@@ -125,7 +154,8 @@ loginForm.addEventListener("submit", async function (event) {
 
         loginButton.disabled = false;
 
-        loginButton.textContent = "Login";
+        loginButton.textContent =
+            "Login";
 
     }
 
@@ -140,12 +170,16 @@ function showOtpSection() {
 
     // Hide login form
 
-    loginForm.classList.add("hidden");
+    loginForm.classList.add(
+        "hidden"
+    );
 
 
     // Hide social login
 
-    socialSection.classList.add("hidden");
+    socialSection.classList.add(
+        "hidden"
+    );
 
 
     // Change heading
@@ -172,12 +206,15 @@ function showOtpSection() {
 
     // Display email
 
-    otpEmail.textContent = loginEmail;
+    otpEmail.textContent =
+        loginEmail;
 
 
     // Show OTP form
 
-    otpForm.classList.remove("hidden");
+    otpForm.classList.remove(
+        "hidden"
+    );
 
 
     // Focus OTP input
@@ -198,12 +235,17 @@ otpForm.addEventListener("submit", async function (event) {
 
     // Get OTP
 
-    const otp = otpInput.value.trim();
+    const otp =
+        otpInput.value.trim();
 
 
     // Clear old message
 
-    showMessage(otpMessage, "", false);
+    showMessage(
+        otpMessage,
+        "",
+        false
+    );
 
 
     // Check OTP length
@@ -224,30 +266,35 @@ otpForm.addEventListener("submit", async function (event) {
 
     verifyOtpButton.disabled = true;
 
-    verifyOtpButton.textContent = "Verifying...";
+    verifyOtpButton.textContent =
+        "Verifying...";
 
 
     try {
 
         // Send OTP to backend
 
-        const response = await fetch("/api/auth/verify-otp", {
+        const response =
+            await fetch(
+                "/api/auth/verify-otp",
+                {
+                    method: "POST",
 
-            method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-                email: loginEmail,
-                otp: otp
-            })
-
-        });
+                    body: JSON.stringify({
+                        email: loginEmail,
+                        otp: otp
+                    })
+                }
+            );
 
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
 
         // Backend error
@@ -256,7 +303,8 @@ otpForm.addEventListener("submit", async function (event) {
 
             showMessage(
                 otpMessage,
-                data.message || "Invalid OTP.",
+                data.message ||
+                    "Invalid OTP.",
                 true
             );
 
@@ -275,24 +323,40 @@ otpForm.addEventListener("submit", async function (event) {
         );
 
 
-        // Store token temporarily
+        // ====================================================
+        // STORE AUTHENTICATION TOKEN
+        // ====================================================
 
-        localStorage.setItem("token", data.token);
+        localStorage.setItem(
+            "token",
+            data.token
+        );
 
 
-        // Store role
+        // ====================================================
+        // STORE USER TYPE
+        // ====================================================
 
-        localStorage.setItem("role", data.role);
+        localStorage.setItem(
+            "userType",
+            data.userType
+        );
 
 
-        // Go to dashboard
+        // ====================================================
+        // GO TO SUPER ADMIN DASHBOARD
+        // ====================================================
 
-        window.location.href = "/pages/dashboard.html";
+        window.location.href =
+            "/pages/admin-dashboard.html";
 
 
     } catch (error) {
 
-        console.error("OTP verification error:", error);
+        console.error(
+            "OTP verification error:",
+            error
+        );
 
         showMessage(
             otpMessage,
@@ -304,7 +368,8 @@ otpForm.addEventListener("submit", async function (event) {
 
         verifyOtpButton.disabled = false;
 
-        verifyOtpButton.textContent = "Verify OTP";
+        verifyOtpButton.textContent =
+            "Verify OTP";
 
     }
 
@@ -315,87 +380,116 @@ otpForm.addEventListener("submit", async function (event) {
 // BACK TO LOGIN
 // ============================================================
 
-backToLogin.addEventListener("click", function () {
+backToLogin.addEventListener(
+    "click",
+    function () {
 
-    // Hide OTP
+        // Hide OTP
 
-    otpForm.classList.add("hidden");
-
-
-    // Show login
-
-    loginForm.classList.remove("hidden");
-
-
-    // Show social buttons
-
-    socialSection.classList.remove("hidden");
+        otpForm.classList.add(
+            "hidden"
+        );
 
 
-    // Restore heading
+        // Show login
 
-    loginHeading.innerHTML = `
-        <h1
-            class="text-3xl
-                   sm:text-4xl
-                   font-bold
-                   text-[#00323F]"
-        >
-            Welcome Back
-        </h1>
-
-        <p
-            class="mt-2
-                   text-sm
-                   text-gray-500"
-        >
-            Sign in to your admin account
-        </p>
-    `;
+        loginForm.classList.remove(
+            "hidden"
+        );
 
 
-    // Clear OTP
+        // Show social buttons
 
-    otpInput.value = "";
+        socialSection.classList.remove(
+            "hidden"
+        );
 
 
-    // Clear messages
+        // Restore heading
 
-    showMessage(otpMessage, "", false);
+        loginHeading.innerHTML = `
+            <h1
+                class="text-3xl
+                       sm:text-4xl
+                       font-bold
+                       text-[#00323F]"
+            >
+                Welcome Back
+            </h1>
 
-});
+            <p
+                class="mt-2
+                       text-sm
+                       text-gray-500"
+            >
+                Sign in to your admin account
+            </p>
+        `;
+
+
+        // Clear OTP
+
+        otpInput.value = "";
+
+
+        // Clear messages
+
+        showMessage(
+            otpMessage,
+            "",
+            false
+        );
+
+    }
+);
 
 
 // ============================================================
 // ONLY ALLOW NUMBERS IN OTP
 // ============================================================
 
-otpInput.addEventListener("input", function () {
+otpInput.addEventListener(
+    "input",
+    function () {
 
-    this.value = this.value.replace(/\D/g, "");
+        this.value =
+            this.value.replace(
+                /\D/g,
+                ""
+            );
 
-});
+    }
+);
 
 
 // ============================================================
 // MESSAGE FUNCTION
 // ============================================================
 
-function showMessage(element, message, isError) {
+function showMessage(
+    element,
+    message,
+    isError
+) {
 
     if (!message) {
 
         element.textContent = "";
 
-        element.classList.add("hidden");
+        element.classList.add(
+            "hidden"
+        );
 
         return;
     }
 
 
-    element.textContent = message;
+    element.textContent =
+        message;
 
-    element.classList.remove("hidden");
+    element.classList.remove(
+        "hidden"
+    );
 
 
     if (isError) {
@@ -429,20 +523,30 @@ function showMessage(element, message, isError) {
 
 document
     .getElementById("googleLogin")
-    .addEventListener("click", function () {
+    .addEventListener(
+        "click",
+        function () {
 
-        alert("Google login will be implemented later.");
+            alert(
+                "Google login will be implemented later."
+            );
 
-    });
+        }
+    );
 
 
 document
     .getElementById("microsoftLogin")
-    .addEventListener("click", function () {
+    .addEventListener(
+        "click",
+        function () {
 
-        alert("Microsoft login will be implemented later.");
+            alert(
+                "Microsoft login will be implemented later."
+            );
 
-    });
+        }
+    );
 
 
 // ============================================================
@@ -451,9 +555,12 @@ document
 
 document
     .getElementById("forgotPassword")
-    .addEventListener("click", function (event) {
+    .addEventListener(
+        "click",
+        function (event) {
 
-       window.location.href = "forgot-password.html";
+            window.location.href =
+                "forgot-password.html";
 
-
-    });
+        }
+    );

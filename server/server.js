@@ -6,6 +6,7 @@ const path = require("path");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const institutionRoutes = require("./routes/institutionRoutes");
 
 const app = express();
 
@@ -55,6 +56,12 @@ app.use(
 app.use(
     "/api/admin",
     adminRoutes
+);
+
+// Institution routes
+app.use(
+    "/api/institutions",
+    institutionRoutes
 );
 
 

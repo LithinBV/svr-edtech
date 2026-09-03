@@ -8,7 +8,10 @@ const protect = (req, res, next) => {
         const authHeader = req.headers.authorization;
 
         // Check if token exists
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        if (
+            !authHeader ||
+            !authHeader.startsWith("Bearer ")
+        ) {
 
             return res.status(401).json({
                 success: false,
@@ -34,7 +37,10 @@ const protect = (req, res, next) => {
 
     } catch (error) {
 
-        console.error("Authentication error:", error.message);
+        console.error(
+            "Authentication error:",
+            error.message
+        );
 
         return res.status(401).json({
             success: false,

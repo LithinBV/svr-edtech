@@ -3,7 +3,7 @@ require("dotenv").config();
 const bcrypt = require("bcryptjs");
 
 const connectDB = require("../config/db");
-const User = require("../models/user");
+const SuperAdmin = require("../models/superAdmin");
 
 const createSuperAdmin = async () => {
     try {
@@ -14,22 +14,26 @@ const createSuperAdmin = async () => {
         const password = "123456789";
 
         // Check if Super Admin already exists
-        const existingUser = await User.findOne({ email });
+        const existingSuperAdmin = await SuperAdmin.findOne({
+            email
+        });
 
-        if (existingUser) {
+        if (existingSuperAdmin) {
             console.log("Super Admin already exists.");
             process.exit(0);
         }
 
         // Encrypt password
-        const hashedPassword = await bcrypt.hash(password, 12);
+        const hashedPassword = await bcrypt.hash(
+            password,
+            12
+        );
 
         // Create Super Admin
-        await User.create({
+        await SuperAdmin.create({
             name: "Super Admin",
             email: email,
-            password: hashedPassword,
-            role: "SUPER_ADMIN"
+            password: hashedPassword
         });
 
         console.log("Super Admin created successfully.");

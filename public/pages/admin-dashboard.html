@@ -15,6 +15,16 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- ==========================================
+         AUTHENTICATION GUARD
+         ========================================== -->
+
+    <script src="/js/authGuard.js"></script>
+
+    <script>
+        requireRole("SUPER_ADMIN");
+    </script>
+
 </head>
 
 
@@ -56,8 +66,15 @@
             <div class="mt-8 grid gap-5 md:grid-cols-2">
 
 
-                <button
-                    class="rounded-xl bg-[#FECA42] p-6 text-left"
+                <!-- ==========================================
+                     CREATE INSTITUTION
+                     ========================================== -->
+
+                <a
+                    href="create-institution.html"
+                    class="block rounded-xl bg-[#FECA42] p-6 text-left
+                    hover:shadow-lg hover:scale-[1.01]
+                    transition duration-200"
                 >
 
                     <h3 class="font-bold text-[#00323F]">
@@ -68,8 +85,12 @@
                         Create a new institution.
                     </p>
 
-                </button>
+                </a>
 
+
+                <!-- ==========================================
+                     CREATE INSTITUTION ADMIN
+                     ========================================== -->
 
                 <button
                     class="rounded-xl bg-[#00323F] p-6 text-left text-white"

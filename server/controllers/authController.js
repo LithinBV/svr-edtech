@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const User = require("../models/user");
+const SuperAdmin = require("../models/superAdmin");
 
 const {
     generateOTP,
@@ -15,7 +15,7 @@ const {
 
 
 // ==================================================
-// ADMIN LOGIN
+// SUPER ADMIN LOGIN
 // ==================================================
 
 const login = async (req, res) => {
@@ -32,53 +32,27 @@ const login = async (req, res) => {
         if (!email || !password) {
 
             return res.status(400).json({
-
                 success: false,
-
                 message: "Email and password are required"
-
             });
 
         }
 
 
         // -------------------------------
-        // Find user
+        // Find Super Admin
         // -------------------------------
 
-        const user = await User.findOne({
-
+        const superAdmin = await SuperAdmin.findOne({
             email: email.toLowerCase()
-
         });
 
 
-        if (!user) {
+        if (!superAdmin) {
 
             return res.status(401).json({
-
                 success: false,
-
                 message: "Invalid email or password"
-
-            });
-
-        }
-
-
-        // -------------------------------
-        // Check role
-        // -------------------------------
-
-        if (user.role !== "SUPER_ADMIN") {
-
-            return res.status(403).json({
-
-                success: false,
-
-                message:
-                    "You are not authorized to use this login"
-
             });
 
         }
@@ -91,18 +65,15 @@ const login = async (req, res) => {
         const passwordMatch =
             await bcrypt.compare(
                 password,
-                user.password
+                superAdmin.password
             );
 
 
         if (!passwordMatch) {
 
             return res.status(401).json({
-
                 success: false,
-
                 message: "Invalid email or password"
-
             });
 
         }
@@ -120,14 +91,14 @@ const login = async (req, res) => {
             new Date(Date.now() + 5 * 60 * 1000);
 
 
-        user.otpHash = otpHash;
+        superAdmin.otpHash = otpHash;
 
-        user.otpExpiresAt = expiresAt;
+        superAdmin.otpExpiresAt = expiresAt;
 
-        user.otpAttempts = 0;
+        superAdmin.otpAttempts = 0;
 
 
-        await user.save();
+        await superAdmin.save();
 
 
         // -------------------------------
@@ -137,19 +108,19 @@ const login = async (req, res) => {
         try {
 
             await sendOTPEmail(
-                user.email,
+                superAdmin.email,
                 otp
             );
 
         } catch (emailError) {
 
-            user.otpHash = null;
+            superAdmin.otpHash = null;
 
-            user.otpExpiresAt = null;
+            superAdmin.otpExpiresAt = null;
 
-            user.otpAttempts = 0;
+            superAdmin.otpAttempts = 0;
 
-            await user.save();
+            await superAdmin.save();
 
             throw emailError;
 
@@ -162,7 +133,7 @@ const login = async (req, res) => {
 
             message: "OTP sent to your email",
 
-            email: user.email
+            email: superAdmin.email
 
         });
 
@@ -214,14 +185,18 @@ const verifyOTP = async (req, res) => {
         }
 
 
-        const user = await User.findOne({
+        // -------------------------------
+        // Find Super Admin
+        // -------------------------------
+
+        const superAdmin = await SuperAdmin.findOne({
 
             email: email.toLowerCase()
 
         });
 
 
-        if (!user) {
+        if (!superAdmin) {
 
             return res.status(401).json({
 
@@ -234,9 +209,13 @@ const verifyOTP = async (req, res) => {
         }
 
 
+        // -------------------------------
+        // Check OTP exists
+        // -------------------------------
+
         if (
-            !user.otpHash ||
-            !user.otpExpiresAt
+            !superAdmin.otpHash ||
+            !superAdmin.otpExpiresAt
         ) {
 
             return res.status(400).json({
@@ -257,16 +236,17 @@ const verifyOTP = async (req, res) => {
 
         if (
             new Date() >
-            user.otpExpiresAt
+            superAdmin.otpExpiresAt
         ) {
 
-            user.otpHash = null;
+            superAdmin.otpHash = null;
 
-            user.otpExpiresAt = null;
+            superAdmin.otpExpiresAt = null;
 
-            user.otpAttempts = 0;
+            superAdmin.otpAttempts = 0;
 
-            await user.save();
+            await superAdmin.save();
+
 
             return res.status(400).json({
 
@@ -284,15 +264,16 @@ const verifyOTP = async (req, res) => {
         // Check attempts
         // -------------------------------
 
-        if (user.otpAttempts >= 5) {
+        if (superAdmin.otpAttempts >= 5) {
 
-            user.otpHash = null;
+            superAdmin.otpHash = null;
 
-            user.otpExpiresAt = null;
+            superAdmin.otpExpiresAt = null;
 
-            user.otpAttempts = 0;
+            superAdmin.otpAttempts = 0;
 
-            await user.save();
+            await superAdmin.save();
+
 
             return res.status(429).json({
 
@@ -316,12 +297,13 @@ const verifyOTP = async (req, res) => {
 
         if (
             submittedHash !==
-            user.otpHash
+            superAdmin.otpHash
         ) {
 
-            user.otpAttempts += 1;
+            superAdmin.otpAttempts += 1;
 
-            await user.save();
+            await superAdmin.save();
+
 
             return res.status(400).json({
 
@@ -338,13 +320,14 @@ const verifyOTP = async (req, res) => {
         // Clear OTP
         // -------------------------------
 
-        user.otpHash = null;
+        superAdmin.otpHash = null;
 
-        user.otpExpiresAt = null;
+        superAdmin.otpExpiresAt = null;
 
-        user.otpAttempts = 0;
+        superAdmin.otpAttempts = 0;
 
-        await user.save();
+
+        await superAdmin.save();
 
 
         // -------------------------------
@@ -354,8 +337,8 @@ const verifyOTP = async (req, res) => {
         const token = jwt.sign(
 
             {
-                userId: user._id,
-                role: user.role
+                userId: superAdmin._id,
+                userType: "SUPER_ADMIN"
             },
 
             process.env.JWT_SECRET,
@@ -376,7 +359,7 @@ const verifyOTP = async (req, res) => {
 
             token,
 
-            role: user.role
+            userType: "SUPER_ADMIN"
 
         });
 
@@ -429,18 +412,21 @@ const forgotPassword = async (req, res) => {
             email.toLowerCase();
 
 
-        const user = await User.findOne({
+        // -------------------------------
+        // Find Super Admin
+        // -------------------------------
 
-            email: normalizedEmail
+        const superAdmin =
+            await SuperAdmin.findOne({
 
-        });
+                email: normalizedEmail
+
+            });
 
 
         // Don't reveal whether account exists
-        if (
-            !user ||
-            user.role !== "SUPER_ADMIN"
-        ) {
+
+        if (!superAdmin) {
 
             return res.json({
 
@@ -466,14 +452,14 @@ const forgotPassword = async (req, res) => {
             new Date(Date.now() + 5 * 60 * 1000);
 
 
-        user.resetOtpHash = otpHash;
+        superAdmin.resetOtpHash = otpHash;
 
-        user.resetOtpExpiresAt = expiresAt;
+        superAdmin.resetOtpExpiresAt = expiresAt;
 
-        user.resetOtpAttempts = 0;
+        superAdmin.resetOtpAttempts = 0;
 
 
-        await user.save();
+        await superAdmin.save();
 
 
         // -------------------------------
@@ -484,7 +470,7 @@ const forgotPassword = async (req, res) => {
 
             await sendPasswordResetOTPEmail(
 
-                user.email,
+                superAdmin.email,
 
                 otp
 
@@ -492,13 +478,13 @@ const forgotPassword = async (req, res) => {
 
         } catch (emailError) {
 
-            user.resetOtpHash = null;
+            superAdmin.resetOtpHash = null;
 
-            user.resetOtpExpiresAt = null;
+            superAdmin.resetOtpExpiresAt = null;
 
-            user.resetOtpAttempts = 0;
+            superAdmin.resetOtpAttempts = 0;
 
-            await user.save();
+            await superAdmin.save();
 
             throw emailError;
 
@@ -512,7 +498,7 @@ const forgotPassword = async (req, res) => {
             message:
                 "If an admin account exists for this email, a verification OTP has been sent.",
 
-            email: user.email
+            email: superAdmin.email
 
         });
 
@@ -588,14 +574,19 @@ const resetPassword = async (req, res) => {
         }
 
 
-        const user = await User.findOne({
+        // -------------------------------
+        // Find Super Admin
+        // -------------------------------
 
-            email: email.toLowerCase()
+        const superAdmin =
+            await SuperAdmin.findOne({
 
-        });
+                email: email.toLowerCase()
+
+            });
 
 
-        if (!user) {
+        if (!superAdmin) {
 
             return res.status(400).json({
 
@@ -613,8 +604,8 @@ const resetPassword = async (req, res) => {
         // -------------------------------
 
         if (
-            !user.resetOtpHash ||
-            !user.resetOtpExpiresAt
+            !superAdmin.resetOtpHash ||
+            !superAdmin.resetOtpExpiresAt
         ) {
 
             return res.status(400).json({
@@ -635,16 +626,17 @@ const resetPassword = async (req, res) => {
 
         if (
             new Date() >
-            user.resetOtpExpiresAt
+            superAdmin.resetOtpExpiresAt
         ) {
 
-            user.resetOtpHash = null;
+            superAdmin.resetOtpHash = null;
 
-            user.resetOtpExpiresAt = null;
+            superAdmin.resetOtpExpiresAt = null;
 
-            user.resetOtpAttempts = 0;
+            superAdmin.resetOtpAttempts = 0;
 
-            await user.save();
+            await superAdmin.save();
+
 
             return res.status(400).json({
 
@@ -663,16 +655,17 @@ const resetPassword = async (req, res) => {
         // -------------------------------
 
         if (
-            user.resetOtpAttempts >= 5
+            superAdmin.resetOtpAttempts >= 5
         ) {
 
-            user.resetOtpHash = null;
+            superAdmin.resetOtpHash = null;
 
-            user.resetOtpExpiresAt = null;
+            superAdmin.resetOtpExpiresAt = null;
 
-            user.resetOtpAttempts = 0;
+            superAdmin.resetOtpAttempts = 0;
 
-            await user.save();
+            await superAdmin.save();
+
 
             return res.status(429).json({
 
@@ -696,12 +689,13 @@ const resetPassword = async (req, res) => {
 
         if (
             submittedHash !==
-            user.resetOtpHash
+            superAdmin.resetOtpHash
         ) {
 
-            user.resetOtpAttempts += 1;
+            superAdmin.resetOtpAttempts += 1;
 
-            await user.save();
+            await superAdmin.save();
+
 
             return res.status(400).json({
 
@@ -725,7 +719,7 @@ const resetPassword = async (req, res) => {
             );
 
 
-        user.password =
+        superAdmin.password =
             hashedPassword;
 
 
@@ -733,22 +727,23 @@ const resetPassword = async (req, res) => {
         // Clear reset OTP
         // -------------------------------
 
-        user.resetOtpHash = null;
+        superAdmin.resetOtpHash = null;
 
-        user.resetOtpExpiresAt = null;
+        superAdmin.resetOtpExpiresAt = null;
 
-        user.resetOtpAttempts = 0;
+        superAdmin.resetOtpAttempts = 0;
 
 
         // Also invalidate any pending login OTP
-        user.otpHash = null;
 
-        user.otpExpiresAt = null;
+        superAdmin.otpHash = null;
 
-        user.otpAttempts = 0;
+        superAdmin.otpExpiresAt = null;
+
+        superAdmin.otpAttempts = 0;
 
 
-        await user.save();
+        await superAdmin.save();
 
 
         return res.json({

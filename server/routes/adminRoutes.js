@@ -6,18 +6,32 @@ const protect = require("../middleware/authMiddleware");
 
 
 // ==========================================
-// ADMIN DASHBOARD
+// MASTER ADMIN DASHBOARD
 // ==========================================
 
-router.get("/dashboard", protect, (req, res) => {
+router.get(
+    "/admin-dashboard",
+    protect,
+    (req, res) => {
 
-    res.json({
-        success: true,
-        message: "Welcome to Admin Dashboard",
-        user: req.user
-    });
+        // Only Super Admin can access
+        if (req.user.userType !== "SUPER_ADMIN") {
 
-});
+            return res.status(403).json({
+                success: false,
+                message: "Access denied. Only Master Admin can access this dashboard."
+            });
+
+        }
+
+        res.json({
+            success: true,
+            message: "Welcome to Master Admin Dashboard",
+            user: req.user
+        });
+
+    }
+);
 
 
 module.exports = router;

@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema(
+const superAdminSchema = new mongoose.Schema(
     {
         name: {
             type: String,
+            required: true,
             trim: true
         },
 
@@ -20,25 +21,6 @@ const userSchema = new mongoose.Schema(
             required: true
         },
 
-        role: {
-            type: String,
-            enum: [
-                "SUPER_ADMIN",
-                "INSTITUTION_ADMIN"
-            ],
-            required: true
-        },
-
-        institutionId: {
-            type: String,
-            default: null
-        },
-
-
-        // ===============================
-        // LOGIN OTP
-        // ===============================
-
         otpHash: {
             type: String,
             default: null
@@ -53,11 +35,6 @@ const userSchema = new mongoose.Schema(
             type: Number,
             default: 0
         },
-
-
-        // ===============================
-        // PASSWORD RESET OTP
-        // ===============================
 
         resetOtpHash: {
             type: String,
@@ -74,10 +51,13 @@ const userSchema = new mongoose.Schema(
             default: 0
         }
     },
-
     {
         timestamps: true
     }
 );
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model(
+    "SuperAdmin",
+    superAdminSchema,
+    "superAdmins"
+);
