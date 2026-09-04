@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Institutions - SVR EDTECH</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="/js/authGuard.js"></script>
+
+    <script>
+        requireRole("SUPER_ADMIN");
+    </script>
+
+</head>
+
+
+<body class="min-h-screen bg-[#f7f9fc] text-[#172033]">
+
+
+    <!-- ========================================== -->
+    <!-- MAIN LAYOUT -->
+    <!-- ========================================== -->
+
+    <div class="flex min-h-screen">
+
+
+        <!-- ========================================== -->
+        <!-- SIDEBAR -->
+        <!-- ========================================== -->
+
+        <aside
+            class="w-[280px] bg-[#071747] text-white hidden lg:flex flex-col"
+        >
+
+            <!-- Logo / Title -->
+
+            <div class="px-7 pt-8 pb-7">
+
+                <div class="flex items-center gap-4">
+
+                    <div
+                        class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center"
+                    >
+
+                        <span class="text-2xl">
+                            🏫
+                        </span>
+
+                    </div>
+
+                    <div>
+
+                        <h1 class="text-xl font-bold">
+                            Institutions
+                        </h1>
+
+                        <p class="text-sm text-white/60">
+                            Manage all institutions
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Navigation -->
+
+            <nav class="px-4 space-y-2">
+
+
+                <!-- All Institutions -->
+
+                <a
+                    href="institutions.html"
+                    class="flex items-center gap-4 px-5 py-4 rounded-xl
+                    bg-[#29459b] border-l-4 border-cyan-300
+                    text-white"
+                >
+
+                    <span class="text-xl">
+                        ▦
+                    </span>
+
+                    <span class="font-medium">
+                        All Institutions
+                    </span>
+
+                </a>
+
+
+                <!-- Dashboard -->
+
+                <a
+                    href="admin-dashboard.html"
+                    class="flex items-center gap-4 px-5 py-4 rounded-xl
+                    text-white/75 hover:bg-white/10 hover:text-white
+                    transition"
+                >
+
+                    <span class="text-xl">
+                        ◉
+                    </span>
+
+                    <span class="font-medium">
+                        Dashboard
+                    </span>
+
+                </a>
+
+            </nav>
+
+
+        </aside>
+
+
+        <!-- ========================================== -->
+        <!-- MOBILE SIDEBAR -->
+        <!-- ========================================== -->
+
+        <div
+            class="lg:hidden fixed top-0 left-0 right-0 z-20
+            bg-[#071747] text-white px-5 py-4"
+        >
+
+            <div class="flex items-center justify-between">
+
+                <div>
+
+                    <h1 class="font-bold text-lg">
+                        Institutions
+                    </h1>
+
+                    <p class="text-xs text-white/60">
+                        Manage all institutions
+                    </p>
+
+                </div>
+
+                <a
+                    href="admin-dashboard.html"
+                    class="text-sm bg-white/10 px-4 py-2 rounded-lg"
+                >
+                    Dashboard
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- ========================================== -->
+        <!-- MAIN CONTENT -->
+        <!-- ========================================== -->
+
+        <main class="flex-1 min-w-0">
+
+
+            <div
+                class="px-5 sm:px-8 lg:px-10 pt-24 lg:pt-10 pb-10"
+            >
+
+
+                <!-- ========================================== -->
+                <!-- HEADER -->
+                <!-- ========================================== -->
+
+                <div
+                    class="flex flex-col xl:flex-row xl:items-center
+                    xl:justify-between gap-5"
+                >
+
+                    <div>
+
+                        <h2
+                            class="text-3xl font-bold text-[#14213d]"
+                        >
+                            All Institutions
+                        </h2>
+
+                        <p class="mt-2 text-gray-500">
+                            Institutions created by the Super Admin.
+                        </p>
+
+                    </div>
+
+
+                    <div class="flex flex-col sm:flex-row gap-3">
+
+
+                        <!-- SEARCH -->
+
+                        <div class="relative">
+
+                            <input
+                                type="text"
+                                id="searchInput"
+                                placeholder="Search institutions..."
+                                autocomplete="off"
+                                class="w-full sm:w-[270px] h-12
+                                bg-white border border-gray-200
+                                rounded-xl px-5 pr-12
+                                outline-none
+                                focus:ring-2 focus:ring-[#29459b]/20
+                                focus:border-[#29459b]"
+                            >
+
+                            <span
+                                class="absolute right-4 top-1/2
+                                -translate-y-1/2 text-gray-400"
+                            >
+                                🔍
+                            </span>
+
+                        </div>
+
+
+                        <!-- ADD INSTITUTION -->
+
+                        <a
+                            href="/pages/create-institution.html"
+                            class="h-12 px-6 rounded-xl
+                            bg-[#fbc21f] text-[#172033]
+                            font-semibold
+                            flex items-center justify-center gap-2
+                            hover:bg-[#f5b900]
+                            transition shadow-sm"
+                        >
+
+                            <span class="text-xl">
+                                +
+                            </span>
+
+                            Add Institution
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ========================================== -->
+                <!-- STATISTICS -->
+                <!-- ========================================== -->
+
+                <div
+                    class="grid grid-cols-1 md:grid-cols-2
+                    xl:grid-cols-2 gap-5 mt-8"
+                >
+
+
+                    <!-- TOTAL INSTITUTIONS -->
+
+                    <div
+                        class="bg-white rounded-2xl border border-gray-100
+                        shadow-sm p-6"
+                    >
+
+                        <div class="flex items-start gap-4">
+
+                            <div
+                                class="w-14 h-14 rounded-2xl
+                                bg-indigo-50 flex items-center
+                                justify-center text-2xl"
+                            >
+                                🏫
+                            </div>
+
+                            <div>
+
+                                <p class="text-sm text-gray-500">
+                                    Total Institutions
+                                </p>
+
+                                <p
+                                    id="totalInstitutions"
+                                    class="text-3xl font-bold mt-1
+                                    text-[#14213d]"
+                                >
+                                    0
+                                </p>
+
+                                <p class="text-sm text-gray-400 mt-1">
+                                    All institutions
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- RECENTLY ADDED -->
+
+                    <div
+                        class="bg-white rounded-2xl border border-gray-100
+                        shadow-sm p-6"
+                    >
+
+                        <div class="flex items-start gap-4">
+
+                            <div
+                                class="w-14 h-14 rounded-2xl
+                                bg-blue-50 flex items-center
+                                justify-center text-2xl"
+                            >
+                                📅
+                            </div>
+
+                            <div>
+
+                                <p class="text-sm text-gray-500">
+                                    Recently Added
+                                </p>
+
+                                <p
+                                    id="recentlyAdded"
+                                    class="text-3xl font-bold mt-1
+                                    text-[#14213d]"
+                                >
+                                    0
+                                </p>
+
+                                <p
+                                    id="recentlyAddedText"
+                                    class="text-sm text-gray-400 mt-1"
+                                >
+                                    This month
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ========================================== -->
+                <!-- LOADING -->
+                <!-- ========================================== -->
+
+                <div
+                    id="loadingMessage"
+                    class="mt-8 bg-white rounded-2xl
+                    border border-gray-100 p-10 text-center"
+                >
+
+                    <div
+                        class="inline-block w-8 h-8
+                        border-4 border-gray-200
+                        border-t-[#29459b]
+                        rounded-full animate-spin"
+                    ></div>
+
+                    <p class="mt-4 text-gray-500">
+                        Loading institutions...
+                    </p>
+
+                </div>
+
+
+                <!-- ========================================== -->
+                <!-- ERROR -->
+                <!-- ========================================== -->
+
+                <div
+                    id="errorMessage"
+                    class="hidden mt-8 rounded-xl
+                    bg-red-50 border border-red-200
+                    text-red-600 p-5"
+                ></div>
+
+
+                <!-- ========================================== -->
+                <!-- EMPTY -->
+                <!-- ========================================== -->
+
+                <div
+                    id="emptyMessage"
+                    class="hidden mt-8 bg-white
+                    rounded-2xl border border-gray-100
+                    p-12 text-center"
+                >
+
+                    <div class="text-5xl">
+                        🏫
+                    </div>
+
+                    <h3
+                        class="mt-4 text-xl font-bold
+                        text-[#14213d]"
+                    >
+                        No institutions found
+                    </h3>
+
+                    <p class="mt-2 text-gray-500">
+                        Create your first institution to get started.
+                    </p>
+
+                </div>
+
+
+                <!-- ========================================== -->
+                <!-- NO SEARCH RESULTS -->
+                <!-- ========================================== -->
+
+                <div
+                    id="noSearchResults"
+                    class="hidden mt-8 bg-white
+                    rounded-2xl border border-gray-100
+                    p-12 text-center"
+                >
+
+                    <div class="text-5xl">
+                        🔍
+                    </div>
+
+                    <h3
+                        class="mt-4 text-xl font-bold
+                        text-[#14213d]"
+                    >
+                        No matching institutions
+                    </h3>
+
+                    <p class="mt-2 text-gray-500">
+                        Try searching with another name, state,
+                        region, or admin username.
+                    </p>
+
+                </div>
+
+
+                <!-- ========================================== -->
+                <!-- INSTITUTION CARDS -->
+                <!-- ========================================== -->
+
+                <div
+                    id="institutionsContainer"
+                    class="grid grid-cols-1 md:grid-cols-2
+                    xl:grid-cols-3 gap-5 mt-8"
+                ></div>
+
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT -->
+    <!-- ========================================== -->
+
+    <script src="/js/institutions.js"></script>
+
+</body>
+
+</html>

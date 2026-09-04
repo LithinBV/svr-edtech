@@ -80,16 +80,21 @@ const createInstitution = async (req, res) => {
         // VALIDATE PASSWORD
         // ==========================================
 
-       const passwordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
+        const passwordRegex =
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
 
-if (!passwordRegex.test(password)) {
-    return res.status(400).json({
-        success: false,
-        message:
-            "Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, one number, and one special character."
-    });
-}
+        if (!passwordRegex.test(password)) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, one number, and one special character."
+
+            });
+
+        }
 
 
         // ==========================================
@@ -315,11 +320,61 @@ if (!passwordRegex.test(password)) {
 
 
 // ==========================================
+// GET ALL INSTITUTIONS
+// ==========================================
+
+const getInstitutions = async (req, res) => {
+
+    try {
+
+        const institutions =
+            await Institution.find()
+                .populate(
+                    "institutionAdminId",
+                    "name username"
+                )
+                .sort({
+                    createdAt: -1
+                });
+
+
+        return res.status(200).json({
+
+            success: true,
+
+            institutions
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "GET INSTITUTIONS ERROR:",
+            error
+        );
+
+
+        return res.status(500).json({
+
+            success: false,
+
+            message:
+                "Failed to fetch institutions."
+
+        });
+
+    }
+
+};
+
+
+// ==========================================
 // EXPORT
 // ==========================================
 
 module.exports = {
 
-    createInstitution
+    createInstitution,
+    getInstitutions
 
 };

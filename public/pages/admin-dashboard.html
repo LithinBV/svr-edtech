@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -11,14 +10,11 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Super Admin Dashboard</title>
+    <title>Super Admin Dashboard - SVR EDTECH</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- ==========================================
-         AUTHENTICATION GUARD
-         ========================================== -->
-
+    <!-- Authentication Guard -->
     <script src="/js/authGuard.js"></script>
 
     <script>
@@ -28,93 +24,369 @@
 </head>
 
 
-<body class="min-h-screen bg-gray-100">
+<body class="min-h-screen bg-[#f7f9fc] text-[#172033]">
 
+
+    <!-- ========================================== -->
+    <!-- TOP HEADER -->
+    <!-- ========================================== -->
 
     <header
-        class="bg-[#00323F] text-white px-6 py-5"
+        class="h-[76px] bg-[#00323F] text-white
+        flex items-center
+        px-6 sm:px-8 lg:px-10
+        shadow-sm"
     >
 
-        <h1 class="text-2xl font-bold">
-            Super Admin Dashboard
-        </h1>
+        <!-- Logo -->
 
-    </header>
+        <div class="flex items-center gap-3">
 
-
-    <main class="p-6">
-
-
-        <div
-            class="bg-white rounded-2xl p-8 shadow"
-        >
-
-            <h2
-                class="text-xl font-semibold text-[#00323F]"
+            <div
+                class="w-11 h-11 rounded-xl
+                bg-white
+                flex items-center justify-center
+                overflow-hidden"
             >
-                Welcome, Super Admin
-            </h2>
 
-
-            <p class="mt-2 text-gray-500">
-
-                You have successfully logged in.
-
-            </p>
-
-
-            <div class="mt-8 grid gap-5 md:grid-cols-2">
-
-
-                <!-- ==========================================
-                     CREATE INSTITUTION
-                     ========================================== -->
-
-                <a
-                    href="create-institution.html"
-                    class="block rounded-xl bg-[#FECA42] p-6 text-left
-                    hover:shadow-lg hover:scale-[1.01]
-                    transition duration-200"
+                <img
+                    src="/assets/images/s-logo.png"
+                    alt="SVR EDTECH"
+                    class="w-9 h-9 object-contain"
                 >
-
-                    <h3 class="font-bold text-[#00323F]">
-                        Create Institution
-                    </h3>
-
-                    <p class="mt-1 text-sm text-[#00323F]/70">
-                        Create a new institution.
-                    </p>
-
-                </a>
-
-
-                <!-- ==========================================
-                     CREATE INSTITUTION ADMIN
-                     ========================================== -->
-
-                <button
-                    class="rounded-xl bg-[#00323F] p-6 text-left text-white"
-                >
-
-                    <h3 class="font-bold">
-                        Create Institution Admin
-                    </h3>
-
-                    <p class="mt-1 text-sm text-white/70">
-                        Create an admin for an institution.
-                    </p>
-
-                </button>
-
 
             </div>
 
 
+            <!-- Title -->
+
+            <div>
+
+                <h1
+                    class="text-lg sm:text-xl
+                    font-bold"
+                >
+                    Super Admin Dashboard
+                </h1>
+
+                <p
+                    class="hidden sm:block
+                    text-xs text-white/60"
+                >
+                    SVR EDTECH Administration
+                </p>
+
+            </div>
+
         </div>
+
+    </header>
+
+
+    <!-- ========================================== -->
+    <!-- MAIN CONTENT -->
+    <!-- ========================================== -->
+
+    <main
+        class="max-w-[1280px]
+        mx-auto
+        px-5 sm:px-8 lg:px-10
+        py-10"
+    >
+
+
+        <!-- ========================================== -->
+        <!-- WELCOME -->
+        <!-- ========================================== -->
+
+        <section>
+
+            <h2
+                class="text-3xl sm:text-4xl
+                font-bold
+                text-[#14213d]"
+            >
+                Welcome back, Super Admin! 👋
+            </h2>
+
+            <p
+                class="mt-2
+                text-gray-500"
+            >
+                Manage institutions and platform
+                administration from one place.
+            </p>
+
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- ACTION CARDS -->
+        <!-- ========================================== -->
+
+        <section
+            class="grid grid-cols-1
+            lg:grid-cols-2
+            gap-6
+            mt-10"
+        >
+
+
+            <!-- ========================================== -->
+            <!-- CREATE INSTITUTION -->
+            <!-- ========================================== -->
+
+            <a
+                href="/pages/create-institution.html"
+                class="group relative
+                overflow-hidden
+                min-h-[230px]
+                rounded-2xl
+                border border-[#f4c52d]
+                bg-gradient-to-br
+                from-[#fffdf4]
+                to-[#fff7d8]
+                p-8
+                flex items-center
+                transition duration-300
+                hover:shadow-xl
+                hover:-translate-y-1"
+            >
+
+                <!-- Background Decoration -->
+
+                <div
+                    class="absolute
+                    -right-10
+                    -bottom-16
+                    w-64
+                    h-64
+                    rounded-full
+                    bg-[#feca42]/10"
+                ></div>
+
+
+                <!-- Building Illustration -->
+
+                <div
+                    class="absolute
+                    right-5
+                    bottom-[-15px]
+                    text-[160px]
+                    leading-none
+                    opacity-[0.07]"
+                >
+                    🏛️
+                </div>
+
+
+                <!-- Content -->
+
+                <div
+                    class="relative z-10
+                    flex items-center
+                    gap-6
+                    pr-12"
+                >
+
+                    <!-- Icon -->
+
+                    <div
+                        class="w-16
+                        h-16
+                        rounded-full
+                        bg-[#feca42]/20
+                        flex items-center
+                        justify-center
+                        text-3xl
+                        flex-shrink-0
+                        group-hover:scale-110
+                        transition duration-300"
+                    >
+                        🏛️
+                    </div>
+
+
+                    <!-- Text -->
+
+                    <div>
+
+                        <h3
+                            class="text-xl sm:text-2xl
+                            font-bold
+                            text-[#14213d]"
+                        >
+                            Create New Institution
+                        </h3>
+
+                        <p
+                            class="mt-2
+                            text-gray-500
+                            max-w-md"
+                        >
+                            Add a new institution to the
+                            SVR EDTECH platform.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Arrow -->
+
+                <div
+                    class="absolute
+                    right-7
+                    top-1/2
+                    -translate-y-1/2
+                    w-12
+                    h-12
+                    rounded-full
+                    bg-white
+                    border border-[#feca42]
+                    flex items-center
+                    justify-center
+                    text-[#00323F]
+                    text-2xl
+                    group-hover:translate-x-1
+                    transition duration-300"
+                >
+                    →
+                </div>
+
+            </a>
+
+
+            <!-- ========================================== -->
+            <!-- VIEW ALL INSTITUTIONS -->
+            <!-- ========================================== -->
+
+            <a
+                href="/pages/institutions.html"
+                class="group relative
+                overflow-hidden
+                min-h-[230px]
+                rounded-2xl
+                border border-[#9bcbd4]
+                bg-gradient-to-br
+                from-[#f5fcfd]
+                to-[#e5f5f7]
+                p-8
+                flex items-center
+                transition duration-300
+                hover:shadow-xl
+                hover:-translate-y-1"
+            >
+
+                <!-- Background Decoration -->
+
+                <div
+                    class="absolute
+                    -right-10
+                    -bottom-16
+                    w-64
+                    h-64
+                    rounded-full
+                    bg-[#00323F]/5"
+                ></div>
+
+
+                <!-- Building Illustration -->
+
+                <div
+                    class="absolute
+                    right-5
+                    bottom-[-15px]
+                    text-[160px]
+                    leading-none
+                    opacity-[0.07]"
+                >
+                    🏢
+                </div>
+
+
+                <!-- Content -->
+
+                <div
+                    class="relative z-10
+                    flex items-center
+                    gap-6
+                    pr-12"
+                >
+
+                    <!-- Icon -->
+
+                    <div
+                        class="w-16
+                        h-16
+                        rounded-full
+                        bg-[#00323F]/10
+                        flex items-center
+                        justify-center
+                        text-3xl
+                        flex-shrink-0
+                        group-hover:scale-110
+                        transition duration-300"
+                    >
+                        🏢
+                    </div>
+
+
+                    <!-- Text -->
+
+                    <div>
+
+                        <h3
+                            class="text-xl sm:text-2xl
+                            font-bold
+                            text-[#14213d]"
+                        >
+                            View All Institutions
+                        </h3>
+
+                        <p
+                            class="mt-2
+                            text-gray-500
+                            max-w-md"
+                        >
+                            View and manage all institutions
+                            created on the platform.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Arrow -->
+
+                <div
+                    class="absolute
+                    right-7
+                    top-1/2
+                    -translate-y-1/2
+                    w-12
+                    h-12
+                    rounded-full
+                    bg-white
+                    border border-[#9bcbd4]
+                    flex items-center
+                    justify-center
+                    text-[#00323F]
+                    text-2xl
+                    group-hover:translate-x-1
+                    transition duration-300"
+                >
+                    →
+                </div>
+
+            </a>
+
+        </section>
 
 
     </main>
-
 
 </body>
 
