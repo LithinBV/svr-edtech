@@ -23,6 +23,12 @@ const loginButton =
 const verifyOtpButton =
     document.getElementById("verifyOtpButton");
 
+const resendOtpButton =
+    document.getElementById("resendOtpButton");
+
+const resendCountdown =
+    document.getElementById("resendCountdown");
+
 const loginMessage =
     document.getElementById("loginMessage");
 
@@ -41,6 +47,15 @@ const loginHeading =
 const socialSection =
     document.getElementById("socialSection");
 
+const googleLogin =
+    document.getElementById("googleLogin");
+
+const microsoftLogin =
+    document.getElementById("microsoftLogin");
+
+const forgotPassword =
+    document.getElementById("forgotPassword");
+
 
 // ============================================================
 // STORE EMAIL FOR OTP
@@ -50,116 +65,154 @@ let loginEmail = "";
 
 
 // ============================================================
+// RESEND TIMER
+// ============================================================
+
+let resendTimer = null;
+
+let resendSecondsRemaining = 0;
+
+
+// ============================================================
+// GOOGLE CLIENT ID
+// ============================================================
+
+const GOOGLE_CLIENT_ID =
+    "156975952914-brbedulqojpg63ns1f12smic32ijll47.apps.googleusercontent.com";
+
+
+// ============================================================
 // LOGIN FORM
 // ============================================================
 
-loginForm.addEventListener("submit", async function (event) {
+loginForm.addEventListener(
+    "submit",
+    async function (event) {
 
-    event.preventDefault();
-
-
-    // Get values
-
-    const email =
-        emailInput.value.trim();
-
-    const password =
-        passwordInput.value;
+        event.preventDefault();
 
 
-    // Clear old message
+        // ------------------------------------------
+        // Get values
+        // ------------------------------------------
 
-    showMessage(
-        loginMessage,
-        "",
-        false
-    );
+        const email =
+            emailInput.value.trim();
 
-
-    // Disable button
-
-    loginButton.disabled = true;
-
-    loginButton.textContent =
-        "Sending OTP...";
+        const password =
+            passwordInput.value;
 
 
-    try {
-
-        // Send email and password to backend
-
-        const response =
-            await fetch(
-                "/api/auth/login",
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        email: email,
-                        password: password
-                    })
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        // Backend error
-
-        if (!response.ok) {
-
-            showMessage(
-                loginMessage,
-                data.message ||
-                    "Login failed.",
-                true
-            );
-
-            return;
-        }
-
-
-        // Save email
-
-        loginEmail =
-            data.email || email;
-
-
-        // Show OTP section
-
-        showOtpSection();
-
-
-    } catch (error) {
-
-        console.error(
-            "Login error:",
-            error
-        );
+        // ------------------------------------------
+        // Clear old message
+        // ------------------------------------------
 
         showMessage(
             loginMessage,
-            "Unable to connect to the server.",
-            true
+            "",
+            false
         );
 
-    } finally {
 
-        loginButton.disabled = false;
+        // ------------------------------------------
+        // Disable button
+        // ------------------------------------------
+
+        loginButton.disabled =
+            true;
 
         loginButton.textContent =
-            "Login";
+            "Sending OTP...";
+
+
+        try {
+
+            // --------------------------------------
+            // Send login request
+            // --------------------------------------
+
+            const response =
+                await fetch(
+                    "/api/auth/login",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+                                email,
+                                password
+                            })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            // --------------------------------------
+            // Backend error
+            // --------------------------------------
+
+            if (!response.ok) {
+
+                showMessage(
+                    loginMessage,
+                    data.message ||
+                        "Login failed.",
+                    true
+                );
+
+                return;
+            }
+
+
+            // --------------------------------------
+            // Save email
+            // --------------------------------------
+
+            loginEmail =
+                data.email || email;
+
+
+            // --------------------------------------
+            // Show OTP
+            // --------------------------------------
+
+            showOtpSection();
+
+
+        } catch (error) {
+
+            console.error(
+                "Login error:",
+                error
+            );
+
+
+            showMessage(
+                loginMessage,
+                "Unable to connect to the server.",
+                true
+            );
+
+
+        } finally {
+
+            loginButton.disabled =
+                false;
+
+            loginButton.textContent =
+                "Login";
+        }
 
     }
-
-});
+);
 
 
 // ============================================================
@@ -168,59 +221,83 @@ loginForm.addEventListener("submit", async function (event) {
 
 function showOtpSection() {
 
+    // ------------------------------------------
     // Hide login form
+    // ------------------------------------------
 
     loginForm.classList.add(
         "hidden"
     );
 
 
+    // ------------------------------------------
     // Hide social login
+    // ------------------------------------------
 
     socialSection.classList.add(
         "hidden"
     );
 
 
+    // ------------------------------------------
     // Change heading
+    // ------------------------------------------
 
     loginHeading.innerHTML = `
+
         <h1
-            class="text-3xl
-                   sm:text-4xl
-                   font-bold
-                   text-[#00323F]"
+            class="text-3xl sm:text-4xl
+            font-bold text-[#00323F]"
         >
             Verify OTP
         </h1>
 
         <p
-            class="mt-2
-                   text-sm
-                   text-gray-500"
+            class="mt-2 text-sm text-gray-500"
         >
             Complete your secure admin login
         </p>
+
     `;
 
 
+    // ------------------------------------------
     // Display email
+    // ------------------------------------------
 
     otpEmail.textContent =
         loginEmail;
 
 
+    // ------------------------------------------
     // Show OTP form
+    // ------------------------------------------
 
     otpForm.classList.remove(
         "hidden"
     );
 
 
-    // Focus OTP input
+    // ------------------------------------------
+    // Clear OTP
+    // ------------------------------------------
+
+    otpInput.value =
+        "";
+
+
+    // ------------------------------------------
+    // Focus OTP
+    // ------------------------------------------
 
     otpInput.focus();
 
+
+    // ------------------------------------------
+    // Start 60 second timer
+    // ------------------------------------------
+
+    startResendCountdown(60);
 }
 
 
@@ -228,83 +305,41 @@ function showOtpSection() {
 // OTP FORM
 // ============================================================
 
-otpForm.addEventListener("submit", async function (event) {
+otpForm.addEventListener(
+    "submit",
+    async function (event) {
 
-    event.preventDefault();
-
-
-    // Get OTP
-
-    const otp =
-        otpInput.value.trim();
+        event.preventDefault();
 
 
-    // Clear old message
+        // ------------------------------------------
+        // Get OTP
+        // ------------------------------------------
 
-    showMessage(
-        otpMessage,
-        "",
-        false
-    );
+        const otp =
+            otpInput.value.trim();
 
 
-    // Check OTP length
-
-    if (!/^\d{6}$/.test(otp)) {
+        // ------------------------------------------
+        // Clear old message
+        // ------------------------------------------
 
         showMessage(
             otpMessage,
-            "Please enter a valid 6-digit OTP.",
-            true
+            "",
+            false
         );
 
-        return;
-    }
 
+        // ------------------------------------------
+        // Check OTP length
+        // ------------------------------------------
 
-    // Disable button
-
-    verifyOtpButton.disabled = true;
-
-    verifyOtpButton.textContent =
-        "Verifying...";
-
-
-    try {
-
-        // Send OTP to backend
-
-        const response =
-            await fetch(
-                "/api/auth/verify-otp",
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        email: loginEmail,
-                        otp: otp
-                    })
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        // Backend error
-
-        if (!response.ok) {
+        if (!/^\d{6}$/.test(otp)) {
 
             showMessage(
                 otpMessage,
-                data.message ||
-                    "Invalid OTP.",
+                "Please enter a valid 6-digit OTP.",
                 true
             );
 
@@ -312,68 +347,460 @@ otpForm.addEventListener("submit", async function (event) {
         }
 
 
-        // ====================================================
-        // OTP SUCCESS
-        // ====================================================
+        // ------------------------------------------
+        // Disable button
+        // ------------------------------------------
+
+        verifyOtpButton.disabled =
+            true;
+
+        verifyOtpButton.textContent =
+            "Verifying...";
+
+
+        try {
+
+            // --------------------------------------
+            // Send OTP to backend
+            // --------------------------------------
+
+            const response =
+                await fetch(
+                    "/api/auth/verify-otp",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+                                email:
+                                    loginEmail,
+
+                                otp
+                            })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            // --------------------------------------
+            // Backend error
+            // --------------------------------------
+
+            if (!response.ok) {
+
+                showMessage(
+                    otpMessage,
+                    data.message ||
+                        "Invalid OTP.",
+                    true
+                );
+
+                return;
+            }
+
+
+            // --------------------------------------
+            // OTP SUCCESS
+            // --------------------------------------
+
+            showMessage(
+                otpMessage,
+                "OTP verified successfully.",
+                false
+            );
+
+
+            // --------------------------------------
+            // Store authentication token
+            // --------------------------------------
+
+            localStorage.setItem(
+                "token",
+                data.token
+            );
+
+
+            // --------------------------------------
+            // Store user type
+            // --------------------------------------
+
+            localStorage.setItem(
+                "userType",
+                data.userType
+            );
+
+
+            // --------------------------------------
+            // Stop resend timer
+            // --------------------------------------
+
+            stopResendCountdown();
+
+
+            // --------------------------------------
+            // Go to dashboard
+            // --------------------------------------
+
+            window.location.href =
+                "/pages/admin-dashboard.html";
+
+
+        } catch (error) {
+
+            console.error(
+                "OTP verification error:",
+                error
+            );
+
+
+            showMessage(
+                otpMessage,
+                "Unable to connect to the server.",
+                true
+            );
+
+
+        } finally {
+
+            verifyOtpButton.disabled =
+                false;
+
+            verifyOtpButton.textContent =
+                "Verify OTP";
+        }
+
+    }
+);
+
+
+// ============================================================
+// RESEND OTP
+// ============================================================
+
+resendOtpButton.addEventListener(
+    "click",
+    async function () {
+
+        // ------------------------------------------
+        // Prevent clicking during countdown
+        // ------------------------------------------
+
+        if (
+            resendSecondsRemaining > 0
+        ) {
+            return;
+        }
+
+
+        // ------------------------------------------
+        // Validate email
+        // ------------------------------------------
+
+        if (!loginEmail) {
+
+            showMessage(
+                otpMessage,
+                "Please login again.",
+                true
+            );
+
+            return;
+        }
+
+
+        // ------------------------------------------
+        // Disable button
+        // ------------------------------------------
+
+        resendOtpButton.disabled =
+            true;
+
+        resendOtpButton.textContent =
+            "Sending...";
+
 
         showMessage(
             otpMessage,
-            "OTP verified successfully.",
+            "",
             false
         );
 
 
-        // ====================================================
-        // STORE AUTHENTICATION TOKEN
-        // ====================================================
+        try {
 
-        localStorage.setItem(
-            "token",
-            data.token
-        );
+            // --------------------------------------
+            // Send resend request
+            // --------------------------------------
 
+            const response =
+                await fetch(
+                    "/api/auth/resend-otp",
+                    {
+                        method: "POST",
 
-        // ====================================================
-        // STORE USER TYPE
-        // ====================================================
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
 
-        localStorage.setItem(
-            "userType",
-            data.userType
-        );
-
-
-        // ====================================================
-        // GO TO SUPER ADMIN DASHBOARD
-        // ====================================================
-
-        window.location.href =
-            "/pages/admin-dashboard.html";
+                        body:
+                            JSON.stringify({
+                                email:
+                                    loginEmail
+                            })
+                    }
+                );
 
 
-    } catch (error) {
+            const data =
+                await response.json();
 
-        console.error(
-            "OTP verification error:",
-            error
-        );
 
-        showMessage(
-            otpMessage,
-            "Unable to connect to the server.",
-            true
-        );
+            // --------------------------------------
+            // Backend error
+            // --------------------------------------
 
-    } finally {
+            if (!response.ok) {
 
-        verifyOtpButton.disabled = false;
+                showMessage(
+                    otpMessage,
+                    data.message ||
+                        "Unable to resend OTP.",
+                    true
+                );
 
-        verifyOtpButton.textContent =
-            "Verify OTP";
+
+                // If backend tells us
+                // remaining seconds,
+                // restart countdown.
+
+                if (
+                    data.remainingSeconds
+                ) {
+
+                    startResendCountdown(
+                        data.remainingSeconds
+                    );
+
+                } else {
+
+                    resendOtpButton.disabled =
+                        false;
+
+                    resendOtpButton.textContent =
+                        "Resend OTP";
+                }
+
+
+                return;
+            }
+
+
+            // --------------------------------------
+            // Success
+            // --------------------------------------
+
+            showMessage(
+                otpMessage,
+                "A new OTP has been sent to your email.",
+                false
+            );
+
+
+            // --------------------------------------
+            // Clear old OTP
+            // --------------------------------------
+
+            otpInput.value =
+                "";
+
+
+            otpInput.focus();
+
+
+            // --------------------------------------
+            // Start new cooldown
+            // --------------------------------------
+
+            startResendCountdown(60);
+
+
+        } catch (error) {
+
+            console.error(
+                "Resend OTP error:",
+                error
+            );
+
+
+            showMessage(
+                otpMessage,
+                "Unable to connect to the server.",
+                true
+            );
+
+
+            resendOtpButton.disabled =
+                false;
+
+            resendOtpButton.textContent =
+                "Resend OTP";
+
+        }
 
     }
+);
 
-});
+
+// ============================================================
+// START RESEND COUNTDOWN
+// ============================================================
+
+function startResendCountdown(
+    seconds
+) {
+
+    // ------------------------------------------
+    // Stop old timer
+    // ------------------------------------------
+
+    stopResendCountdown();
+
+
+    resendSecondsRemaining =
+        Math.max(
+            0,
+            Number(seconds)
+        );
+
+
+    // ------------------------------------------
+    // Update immediately
+    // ------------------------------------------
+
+    updateResendCountdown();
+
+
+    // ------------------------------------------
+    // Already finished
+    // ------------------------------------------
+
+    if (
+        resendSecondsRemaining <= 0
+    ) {
+
+        return;
+    }
+
+
+    // ------------------------------------------
+    // Start timer
+    // ------------------------------------------
+
+    resendTimer =
+        setInterval(
+            function () {
+
+                resendSecondsRemaining -=
+                    1;
+
+
+                updateResendCountdown();
+
+
+                if (
+                    resendSecondsRemaining <=
+                    0
+                ) {
+
+                    stopResendCountdown();
+
+                    resendOtpButton.disabled =
+                        false;
+
+                    resendOtpButton.textContent =
+                        "Resend OTP";
+                }
+
+            },
+            1000
+        );
+}
+
+
+// ============================================================
+// UPDATE RESEND COUNTDOWN UI
+// ============================================================
+
+function updateResendCountdown() {
+
+    if (
+        resendSecondsRemaining > 0
+    ) {
+
+        resendOtpButton.disabled =
+            true;
+
+        resendOtpButton.textContent =
+            "Resend OTP";
+
+
+        resendCountdown.textContent =
+            `You can resend OTP in ${resendSecondsRemaining}s`;
+
+
+        resendCountdown.classList.remove(
+            "hidden"
+        );
+
+    } else {
+
+        resendOtpButton.disabled =
+            false;
+
+        resendOtpButton.textContent =
+            "Resend OTP";
+
+
+        resendCountdown.textContent =
+            "";
+
+
+        resendCountdown.classList.add(
+            "hidden"
+        );
+    }
+}
+
+
+// ============================================================
+// STOP RESEND COUNTDOWN
+// ============================================================
+
+function stopResendCountdown() {
+
+    if (resendTimer) {
+
+        clearInterval(
+            resendTimer
+        );
+
+        resendTimer =
+            null;
+    }
+
+
+    resendSecondsRemaining =
+        0;
+}
 
 
 // ============================================================
@@ -384,55 +811,73 @@ backToLogin.addEventListener(
     "click",
     function () {
 
+        // ------------------------------------------
+        // Stop countdown
+        // ------------------------------------------
+
+        stopResendCountdown();
+
+
+        // ------------------------------------------
         // Hide OTP
+        // ------------------------------------------
 
         otpForm.classList.add(
             "hidden"
         );
 
 
+        // ------------------------------------------
         // Show login
+        // ------------------------------------------
 
         loginForm.classList.remove(
             "hidden"
         );
 
 
+        // ------------------------------------------
         // Show social buttons
+        // ------------------------------------------
 
         socialSection.classList.remove(
             "hidden"
         );
 
 
+        // ------------------------------------------
         // Restore heading
+        // ------------------------------------------
 
         loginHeading.innerHTML = `
+
             <h1
-                class="text-3xl
-                       sm:text-4xl
-                       font-bold
-                       text-[#00323F]"
+                class="text-3xl sm:text-4xl
+                font-bold text-[#00323F]"
             >
                 Welcome Back
             </h1>
 
             <p
-                class="mt-2
-                       text-sm
-                       text-gray-500"
+                class="mt-2 text-sm text-gray-500"
             >
                 Sign in to your admin account
             </p>
+
         `;
 
 
+        // ------------------------------------------
         // Clear OTP
+        // ------------------------------------------
 
-        otpInput.value = "";
+        otpInput.value =
+            "";
 
 
+        // ------------------------------------------
         // Clear messages
+        // ------------------------------------------
 
         showMessage(
             otpMessage,
@@ -474,7 +919,8 @@ function showMessage(
 
     if (!message) {
 
-        element.textContent = "";
+        element.textContent =
+            "";
 
         element.classList.add(
             "hidden"
@@ -486,6 +932,7 @@ function showMessage(
 
     element.textContent =
         message;
+
 
     element.classList.remove(
         "hidden"
@@ -518,49 +965,237 @@ function showMessage(
 
 
 // ============================================================
-// SOCIAL LOGIN
+// GOOGLE LOGIN
 // ============================================================
 
-document
-    .getElementById("googleLogin")
-    .addEventListener(
-        "click",
-        function () {
+function initializeGoogleLogin() {
 
-            alert(
-                "Google login will be implemented later."
+    if (
+        typeof google === "undefined" ||
+        !google.accounts ||
+        !google.accounts.id
+    ) {
+
+        console.error(
+            "Google Identity Services has not loaded."
+        );
+
+        return;
+    }
+
+
+    google.accounts.id.initialize({
+
+        client_id:
+            GOOGLE_CLIENT_ID,
+
+        callback:
+            handleGoogleResponse
+
+    });
+
+}
+
+
+// ============================================================
+// GOOGLE RESPONSE
+// ============================================================
+
+async function handleGoogleResponse(
+    response
+) {
+
+    try {
+
+        if (
+            !response ||
+            !response.credential
+        ) {
+
+            showMessage(
+                loginMessage,
+                "Google authentication failed.",
+                true
             );
 
+            return;
         }
-    );
 
 
-document
-    .getElementById("microsoftLogin")
-    .addEventListener(
-        "click",
-        function () {
+        // ------------------------------------------
+        // Disable Google button
+        // ------------------------------------------
 
-            alert(
-                "Microsoft login will be implemented later."
+        googleLogin.disabled =
+            true;
+
+        googleLogin.textContent =
+            "Signing in with Google...";
+
+
+        showMessage(
+            loginMessage,
+            "",
+            false
+        );
+
+
+        // ------------------------------------------
+        // Send Google credential
+        // ------------------------------------------
+
+        const backendResponse =
+            await fetch(
+                "/api/auth/google-login",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            credential:
+                                response.credential
+
+                        })
+                }
             );
 
+
+        const data =
+            await backendResponse.json();
+
+
+        // ------------------------------------------
+        // Backend error
+        // ------------------------------------------
+
+        if (!backendResponse.ok) {
+
+            showMessage(
+                loginMessage,
+                data.message ||
+                    "Google login failed.",
+                true
+            );
+
+            return;
         }
-    );
+
+
+        // ------------------------------------------
+        // Save email for OTP
+        // ------------------------------------------
+
+        loginEmail =
+            data.email;
+
+
+        // ------------------------------------------
+        // Show OTP section
+        // ------------------------------------------
+
+        showOtpSection();
+
+
+    } catch (error) {
+
+        console.error(
+            "Google login error:",
+            error
+        );
+
+
+        showMessage(
+            loginMessage,
+            "Unable to connect to the server.",
+            true
+        );
+
+
+    } finally {
+
+        googleLogin.disabled =
+            false;
+
+        googleLogin.textContent =
+            "Continue with Google";
+    }
+
+}
+
+
+// ============================================================
+// GOOGLE BUTTON
+// ============================================================
+
+googleLogin.addEventListener(
+    "click",
+    function () {
+
+        if (
+            typeof google === "undefined" ||
+            !google.accounts ||
+            !google.accounts.id
+        ) {
+
+            showMessage(
+                loginMessage,
+                "Google Login is still loading. Please try again.",
+                true
+            );
+
+            return;
+        }
+
+
+        // ------------------------------------------
+        // Open Google's account selection
+        // ------------------------------------------
+
+        google.accounts.id.prompt();
+
+    }
+);
+
+
+// ============================================================
+// MICROSOFT LOGIN
+// ============================================================
+
+microsoftLogin.addEventListener(
+    "click",
+    function () {
+
+        alert(
+            "Microsoft login will be implemented later."
+        );
+
+    }
+);
 
 
 // ============================================================
 // FORGOT PASSWORD
 // ============================================================
 
-document
-    .getElementById("forgotPassword")
-    .addEventListener(
-        "click",
-        function (event) {
+forgotPassword.addEventListener(
+    "click",
+    function () {
 
-            window.location.href =
-                "forgot-password.html";
+        window.location.href =
+            "forgot-password.html";
 
-        }
-    );
+    }
+);
+
+
+// ============================================================
+// INITIALIZE GOOGLE
+// ============================================================
+
+initializeGoogleLogin();

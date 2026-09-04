@@ -16,10 +16,20 @@ const superAdminSchema = new mongoose.Schema(
             trim: true
         },
 
+        googleId: {
+            type: String,
+            default: null,
+            index: true
+        },
+
         password: {
             type: String,
             required: true
         },
+
+        // ==================================================
+        // LOGIN OTP
+        // ==================================================
 
         otpHash: {
             type: String,
@@ -35,6 +45,28 @@ const superAdminSchema = new mongoose.Schema(
             type: Number,
             default: 0
         },
+
+        // Last time an OTP was successfully sent
+        otpLastSentAt: {
+            type: Date,
+            default: null
+        },
+
+        // Number of login OTPs sent today
+        otpDailyCount: {
+            type: Number,
+            default: 0
+        },
+
+        // Date when the daily counter should reset
+        otpDailyResetAt: {
+            type: Date,
+            default: null
+        },
+
+        // ==================================================
+        // PASSWORD RESET OTP
+        // ==================================================
 
         resetOtpHash: {
             type: String,

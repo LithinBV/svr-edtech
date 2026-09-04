@@ -4,7 +4,9 @@ const router = express.Router();
 
 const {
     login,
+    googleLogin,
     verifyOTP,
+    resendOTP,
     forgotPassword,
     resetPassword
 } = require("../controllers/authController");
@@ -21,12 +23,32 @@ router.post(
 
 
 // ===============================
+// GOOGLE LOGIN
+// ===============================
+
+router.post(
+    "/google-login",
+    googleLogin
+);
+
+
+// ===============================
 // VERIFY LOGIN OTP
 // ===============================
 
 router.post(
     "/verify-otp",
     verifyOTP
+);
+
+
+// ===============================
+// RESEND LOGIN OTP
+// ===============================
+
+router.post(
+    "/resend-otp",
+    resendOTP
 );
 
 

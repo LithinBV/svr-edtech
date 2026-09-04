@@ -18,14 +18,18 @@
 
 
 <body
-    class="min-h-screen bg-[#00323F] flex items-center justify-center p-5">
+    class="min-h-screen bg-[#00323F] flex items-center justify-center p-5"
+>
 
+
+    <!-- ================================================= -->
     <!-- MAIN CONTAINER -->
-
+    <!-- ================================================= -->
 
     <div
-        class="w-full max-w-5xl min-h-[650px] bg-white rounded-3xl 
-        overflow-hidden shadow-2xl grid grid-cols-1 md:grid-cols-2" >
+        class="w-full max-w-5xl min-h-[650px] bg-white rounded-3xl
+        overflow-hidden shadow-2xl grid grid-cols-1 md:grid-cols-2"
+    >
 
 
         <!-- ================================================= -->
@@ -33,22 +37,25 @@
         <!-- ================================================= -->
 
         <div
-            class="relative bg-[#FECA42] flex flex-col items-center 
-            justify-center text-center p-10 overflow-hidden" >
+            class="relative bg-[#FECA42] flex flex-col items-center
+            justify-center text-center p-10 overflow-hidden"
+        >
+
 
             <!-- LOGO -->
 
             <div
                 class="relative z-10
-                       flex
-                       items-center
-                       justify-center"
+                flex
+                items-center
+                justify-center"
             >
 
                 <img
                     src="../assets/images/svr-logo.png"
                     alt="SVR EDTECH Logo"
-                    class="w-80 max-w-full h-auto object-contain" >
+                    class="w-80 max-w-full h-auto object-contain"
+                >
 
             </div>
 
@@ -56,7 +63,8 @@
             <!-- ADMIN PORTAL -->
 
             <h2
-                class="relative z-10 mt-7 text-3xl font-bold text-[#00323F]">
+                class="relative z-10 mt-7 text-3xl font-bold text-[#00323F]"
+            >
                 Admin Portal
             </h2>
 
@@ -64,10 +72,12 @@
             <!-- DESCRIPTION -->
 
             <p
-                class="relative z-10  mt-3  max-w-sm text-sm leading-6 text-[#00323F]/75" >
+                class="relative z-10 mt-3 max-w-sm text-sm leading-6 text-[#00323F]/75"
+            >
                 Securely manage your platform,
                 users and administration.
             </p>
+
 
         </div>
 
@@ -78,25 +88,32 @@
         <!-- ================================================= -->
 
         <div
-            class="flex items-center justify-center bg-white p-7 sm:p-10 md:p-12" >
+            class="flex items-center justify-center bg-white p-7 sm:p-10 md:p-12"
+        >
 
             <div
-                class="w-full max-w-md" >
+                class="w-full max-w-md"
+            >
+
 
                 <!-- ================================================= -->
                 <!-- LOGIN HEADING -->
                 <!-- ================================================= -->
 
                 <div
-                    id="loginHeading"  class="mb-8" >
+                    id="loginHeading"
+                    class="mb-8"
+                >
 
                     <h1
-                        class="text-3xl  sm:text-4xl font-bold  text-[#00323F]">
+                        class="text-3xl sm:text-4xl font-bold text-[#00323F]"
+                    >
                         Welcome Back
                     </h1>
 
                     <p
-                        class="mt-2 text-sm text-gray-500" >
+                        class="mt-2 text-sm text-gray-500"
+                    >
                         Sign in to your admin account
                     </p>
 
@@ -109,7 +126,10 @@
                 <!-- ================================================= -->
 
                 <form
-                    id="adminLoginForm" class="space-y-5" >
+                    id="adminLoginForm"
+                    class="space-y-5"
+                >
+
 
                     <!-- EMAIL -->
 
@@ -117,33 +137,40 @@
 
                         <label
                             for="email"
-                            class="mb-2 block text-sm font-semibold text-gray-700" >
+                            class="mb-2 block text-sm font-semibold text-gray-700"
+                        >
                             Email Address
                         </label>
 
                         <input
-                            type="email" id="email" name="email" placeholder="Enter your email" autocomplete="email" required
-                            class="w-full rounded-xl border border-gray-300  px-4 py-3 text-sm text-gray-800 
-                            outline-none transition placeholder:text-gray-400 focus:border-[#00323F] focus:ring-2 focus:ring-[#00323F]/10" >
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Enter your email"
+                            autocomplete="email"
+                            required
+                            class="w-full rounded-xl border border-gray-300
+                            px-4 py-3 text-sm text-gray-800
+                            outline-none transition
+                            placeholder:text-gray-400
+                            focus:border-[#00323F]
+                            focus:ring-2 focus:ring-[#00323F]/10"
+                        >
 
                     </div>
+
 
                     <!-- PASSWORD -->
 
                     <div>
 
                         <div
-                            class="mb-2
-                                   flex
-                                   items-center
-                                   justify-between"
+                            class="mb-2 flex items-center justify-between"
                         >
 
                             <label
                                 for="password"
-                                class="text-sm
-                                       font-semibold
-                                       text-gray-700"
+                                class="text-sm font-semibold text-gray-700"
                             >
                                 Password
                             </label>
@@ -152,11 +179,8 @@
                             <a
                                 href="forgot-password.html"
                                 id="forgotPassword"
-                                class="text-sm
-                                       font-medium
-                                       text-[#00323F]
-                                       transition
-                                       hover:underline"
+                                class="text-sm font-medium text-[#00323F]
+                                transition hover:underline"
                             >
                                 Forgot Password?
                             </a>
@@ -171,20 +195,12 @@
                             placeholder="Enter your password"
                             autocomplete="current-password"
                             required
-                            class="w-full
-                                   rounded-xl
-                                   border
-                                   border-gray-300
-                                   px-4
-                                   py-3
-                                   text-sm
-                                   text-gray-800
-                                   outline-none
-                                   transition
-                                   placeholder:text-gray-400
-                                   focus:border-[#00323F]
-                                   focus:ring-2
-                                   focus:ring-[#00323F]/10"
+                            class="w-full rounded-xl border border-gray-300
+                            px-4 py-3 text-sm text-gray-800
+                            outline-none transition
+                            placeholder:text-gray-400
+                            focus:border-[#00323F]
+                            focus:ring-2 focus:ring-[#00323F]/10"
                         >
 
                     </div>
@@ -192,15 +208,12 @@
 
 
                     <!-- ================================================= -->
-                    <!-- MESSAGE -->
+                    <!-- LOGIN MESSAGE -->
                     <!-- ================================================= -->
 
                     <p
                         id="loginMessage"
-                        class="hidden
-                               text-center
-                               text-sm
-                               font-medium"
+                        class="hidden text-center text-sm font-medium"
                     ></p>
 
 
@@ -212,19 +225,13 @@
                     <button
                         type="submit"
                         id="loginButton"
-                        class="w-full
-                               rounded-xl
-                               bg-[#00323F]
-                               py-3.5
-                               text-sm
-                               font-semibold
-                               text-white
-                               shadow-lg
-                               transition
-                               hover:bg-[#024957]
-                               active:scale-[0.98]
-                               disabled:cursor-not-allowed
-                               disabled:opacity-60"
+                        class="w-full rounded-xl bg-[#00323F]
+                        py-3.5 text-sm font-semibold text-white
+                        shadow-lg transition
+                        hover:bg-[#024957]
+                        active:scale-[0.98]
+                        disabled:cursor-not-allowed
+                        disabled:opacity-60"
                     >
                         Login
                     </button>
@@ -235,7 +242,6 @@
 
                 <!-- ================================================= -->
                 <!-- OTP SECTION -->
-                <!-- Initially hidden -->
                 <!-- ================================================= -->
 
                 <form
@@ -243,56 +249,47 @@
                     class="hidden space-y-5"
                 >
 
+
                     <!-- OTP HEADING -->
 
                     <div>
 
                         <h2
-                            class="text-2xl
-                                   font-bold
-                                   text-[#00323F]"
+                            class="text-2xl font-bold text-[#00323F]"
                         >
                             Verify Your Email
                         </h2>
 
                         <p
-                            class="mt-2
-                                   text-sm
-                                   leading-6
-                                   text-gray-500"
+                            class="mt-2 text-sm leading-6 text-gray-500"
                         >
                             We have sent a 6-digit OTP to your email address.
                         </p>
 
                         <p
                             id="otpEmail"
-                            class="mt-1
-                                   text-sm
-                                   font-semibold
-                                   text-[#00323F]"
+                            class="mt-1 text-sm font-semibold text-[#00323F]"
                         ></p>
 
                     </div>
 
 
 
+                    <!-- ================================================= -->
                     <!-- OTP INPUT -->
+                    <!-- ================================================= -->
 
                     <div>
 
                         <label
                             for="otp"
-                            class="mb-2
-                                   block
-                                   text-sm
-                                   font-semibold
-                                   text-gray-700"
+                            class="mb-2 block text-sm font-semibold text-gray-700"
                         >
                             Enter OTP
                         </label>
 
                         <input
-                            type="text"
+                            type="password"
                             id="otp"
                             name="otp"
                             inputmode="numeric"
@@ -301,86 +298,105 @@
                             pattern="[0-9]{6}"
                             placeholder="Enter 6-digit OTP"
                             required
-                            class="w-full
-                                   rounded-xl
-                                   border
-                                   border-gray-300
-                                   px-4
-                                   py-3
-                                   text-center
-                                   text-lg
-                                   font-semibold
-                                   tracking-[0.5em]
-                                   text-gray-800
-                                   outline-none
-                                   transition
-                                   placeholder:text-gray-400
-                                   placeholder:tracking-normal
-                                   focus:border-[#00323F]
-                                   focus:ring-2
-                                   focus:ring-[#00323F]/10"
+                            class="w-full rounded-xl border border-gray-300
+                            px-4 py-3 text-center text-lg
+                            font-semibold tracking-[0.5em]
+                            text-gray-800 outline-none transition
+                            placeholder:text-gray-400
+                            placeholder:tracking-normal
+                            focus:border-[#00323F]
+                            focus:ring-2 focus:ring-[#00323F]/10"
                         >
 
                     </div>
 
 
 
+                    <!-- ================================================= -->
                     <!-- OTP MESSAGE -->
+                    <!-- ================================================= -->
 
                     <p
                         id="otpMessage"
-                        class="hidden
-                               text-center
-                               text-sm
-                               font-medium"
+                        class="hidden text-center text-sm font-medium"
                     ></p>
 
 
 
+                    <!-- ================================================= -->
                     <!-- VERIFY BUTTON -->
+                    <!-- ================================================= -->
 
                     <button
                         type="submit"
                         id="verifyOtpButton"
-                        class="w-full
-                               rounded-xl
-                               bg-[#00323F]
-                               py-3.5
-                               text-sm
-                               font-semibold
-                               text-white
-                               shadow-lg
-                               transition
-                               hover:bg-[#024957]
-                               active:scale-[0.98]
-                               disabled:cursor-not-allowed
-                               disabled:opacity-60"
+                        class="w-full rounded-xl bg-[#00323F]
+                        py-3.5 text-sm font-semibold text-white
+                        shadow-lg transition
+                        hover:bg-[#024957]
+                        active:scale-[0.98]
+                        disabled:cursor-not-allowed
+                        disabled:opacity-60"
                     >
                         Verify OTP
                     </button>
 
 
 
+                    <!-- ================================================= -->
+                    <!-- RESEND OTP -->
+                    <!-- ================================================= -->
+
+                    <div class="text-center">
+
+                        <p
+                            class="text-sm text-gray-500"
+                        >
+                            Didn't receive the OTP?
+                        </p>
+
+                        <button
+                            type="button"
+                            id="resendOtpButton"
+                            class="mt-1 text-sm font-semibold
+                            text-[#00323F]
+                            hover:underline
+                            disabled:cursor-not-allowed
+                            disabled:no-underline
+                            disabled:opacity-50"
+                        >
+                            Resend OTP
+                        </button>
+
+                        <p
+                            id="resendCountdown"
+                            class="mt-1 text-xs text-gray-400 hidden"
+                        ></p>
+
+                    </div>
+
+
+
+                    <!-- ================================================= -->
                     <!-- BACK TO LOGIN -->
+                    <!-- ================================================= -->
 
                     <button
                         type="button"
                         id="backToLogin"
-                        class="w-full
-                               text-sm
-                               font-medium
-                               text-[#00323F]
-                               hover:underline"
+                        class="w-full text-sm font-medium
+                        text-[#00323F] hover:underline"
                     >
                         Back to Login
                     </button>
+
 
                 </form>
 
 
 
                 <!-- ================================================= -->
-                <!-- DIVIDER -->
+                <!-- SOCIAL LOGIN -->
                 <!-- ================================================= -->
 
                 <div
@@ -388,69 +404,47 @@
                 >
 
                     <div
-                        class="my-7
-                               flex
-                               items-center
-                               gap-3"
+                        class="my-7 flex items-center gap-3"
                     >
 
                         <div
-                            class="h-px
-                                   flex-1
-                                   bg-gray-200"
+                            class="h-px flex-1 bg-gray-200"
                         ></div>
 
                         <span
-                            class="whitespace-nowrap
-                                   text-xs
-                                   font-medium
-                                   text-gray-400"
+                            class="whitespace-nowrap text-xs
+                            font-medium text-gray-400"
                         >
                             OR CONTINUE WITH
                         </span>
 
                         <div
-                            class="h-px
-                                   flex-1
-                                   bg-gray-200"
+                            class="h-px flex-1 bg-gray-200"
                         ></div>
 
                     </div>
 
 
 
-                    <!-- ================================================= -->
-                    <!-- SOCIAL LOGIN BUTTONS -->
-                    <!-- ================================================= -->
+                    <!-- SOCIAL BUTTONS -->
 
                     <div
-                        class="grid
-                               grid-cols-2
-                               gap-3"
+                        class="grid grid-cols-2 gap-3"
                     >
+
 
                         <!-- GOOGLE -->
 
                         <button
                             type="button"
                             id="googleLogin"
-                            class="flex
-                                   h-12
-                                   items-center
-                                   justify-center
-                                   gap-2
-                                   rounded-xl
-                                   border
-                                   border-gray-300
-                                   bg-white
-                                   px-3
-                                   text-sm
-                                   font-semibold
-                                   text-gray-700
-                                   transition
-                                   hover:border-gray-400
-                                   hover:bg-gray-50
-                                   active:scale-[0.98]"
+                            class="flex h-12 items-center
+                            justify-center gap-2 rounded-xl
+                            border border-gray-300 bg-white px-3
+                            text-sm font-semibold text-gray-700
+                            transition hover:border-gray-400
+                            hover:bg-gray-50
+                            active:scale-[0.98]"
                         >
 
                             <svg
@@ -492,23 +486,13 @@
                         <button
                             type="button"
                             id="microsoftLogin"
-                            class="flex
-                                   h-12
-                                   items-center
-                                   justify-center
-                                   gap-2
-                                   rounded-xl
-                                   border
-                                   border-gray-300
-                                   bg-white
-                                   px-3
-                                   text-sm
-                                   font-semibold
-                                   text-gray-700
-                                   transition
-                                   hover:border-gray-400
-                                   hover:bg-gray-50
-                                   active:scale-[0.98]"
+                            class="flex h-12 items-center
+                            justify-center gap-2 rounded-xl
+                            border border-gray-300 bg-white px-3
+                            text-sm font-semibold text-gray-700
+                            transition hover:border-gray-400
+                            hover:bg-gray-50
+                            active:scale-[0.98]"
                         >
 
                             <svg
@@ -566,10 +550,7 @@
                 <!-- ================================================= -->
 
                 <p
-                    class="mt-8
-                           text-center
-                           text-xs
-                           text-gray-400"
+                    class="mt-8 text-center text-xs text-gray-400"
                 >
                     © 2026 SVR EDTECH.
                     All rights reserved.
@@ -588,7 +569,16 @@
     <!-- JAVASCRIPT -->
     <!-- ================================================= -->
 
-    <script src="../js/login.js"></script>
+    <script
+        src="https://accounts.google.com/gsi/client"
+        defer
+    ></script>
+
+    <script
+        src="../js/login.js"
+        defer
+    ></script>
+
 
 </body>
 
