@@ -7,6 +7,8 @@ const {
     googleLogin,
     verifyOTP,
     resendOTP,
+    refreshToken,
+    logout,
     forgotPassword,
     resetPassword
 } = require("../controllers/authController");
@@ -49,6 +51,26 @@ router.post(
 router.post(
     "/resend-otp",
     resendOTP
+);
+
+
+// ===============================
+// REFRESH ACCESS TOKEN
+// ===============================
+
+router.post(
+    "/refresh",
+    refreshToken
+);
+
+
+// ===============================
+// LOGOUT
+// ===============================
+
+router.post(
+    "/logout",
+    logout
 );
 
 

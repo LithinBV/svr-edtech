@@ -2,11 +2,42 @@ const mongoose = require("mongoose");
 
 const institutionAdminSchema = new mongoose.Schema(
     {
+        // ==========================================
+        // ADMIN NAME
+        // ==========================================
+
         name: {
             type: String,
             required: true,
             trim: true
         },
+
+        // ==========================================
+        // ADMIN EMAIL
+        // ==========================================
+
+        email: {
+            type: String,
+            required: true,
+            unique: true,
+            lowercase: true,
+            trim: true
+        },
+
+        // ==========================================
+        // GOOGLE LOGIN
+        // ==========================================
+
+        googleId: {
+            type: String,
+            unique: true,
+            sparse: true,
+            default: null
+        },
+
+        // ==========================================
+        // USERNAME
+        // ==========================================
 
         username: {
             type: String,
@@ -15,16 +46,28 @@ const institutionAdminSchema = new mongoose.Schema(
             trim: true
         },
 
+        // ==========================================
+        // PASSWORD
+        // ==========================================
+
         password: {
             type: String,
             required: true
         },
+
+        // ==========================================
+        // INSTITUTION
+        // ==========================================
 
         institutionId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Institution",
             required: true
         },
+
+        // ==========================================
+        // LOGIN OTP
+        // ==========================================
 
         otpHash: {
             type: String,
@@ -39,12 +82,70 @@ const institutionAdminSchema = new mongoose.Schema(
         otpAttempts: {
             type: Number,
             default: 0
+        },
+
+        // ==========================================
+        // OTP RESEND CONTROL
+        // ==========================================
+
+        otpLastSentAt: {
+            type: Date,
+            default: null
+        },
+
+        otpDailyCount: {
+            type: Number,
+            default: 0
+        },
+
+        otpDailyResetAt: {
+            type: Date,
+            default: null
+        },
+
+        // ==========================================
+        // PASSWORD RESET OTP
+        // ==========================================
+
+        resetOtpHash: {
+            type: String,
+            default: null
+        },
+
+        resetOtpExpiresAt: {
+            type: Date,
+            default: null
+        },
+
+        resetOtpAttempts: {
+            type: Number,
+            default: 0
+        },
+
+        // ==========================================
+        // PERSISTENT LOGIN SESSION
+        // ==========================================
+
+        refreshTokenHash: {
+            type: String,
+            default: null
+        },
+
+        refreshTokenExpiresAt: {
+            type: Date,
+            default: null
         }
     },
+
     {
         timestamps: true
     }
 );
+
+
+// ==========================================
+// EXPORT MODEL
+// ==========================================
 
 module.exports = mongoose.model(
     "InstitutionAdmin",

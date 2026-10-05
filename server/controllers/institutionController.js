@@ -31,6 +31,7 @@ const createInstitution = async (req, res) => {
             institutionName,
             state,
             region,
+            email,
             username,
             password
         } = req.body;
@@ -44,6 +45,7 @@ const createInstitution = async (req, res) => {
             !institutionName ||
             !state ||
             !region ||
+            !email ||
             !username ||
             !password
         ) {
@@ -72,8 +74,33 @@ const createInstitution = async (req, res) => {
         const cleanRegion =
             region.trim();
 
+        const cleanEmail =
+            email.trim().toLowerCase();
+
         const cleanUsername =
             username.trim();
+
+
+        // ==========================================
+        // VALIDATE EMAIL
+        // ==========================================
+
+        const emailRegex =
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+        if (!emailRegex.test(cleanEmail)) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Please enter a valid email address."
+
+            });
+
+        }
 
 
         // ==========================================
@@ -82,6 +109,7 @@ const createInstitution = async (req, res) => {
 
         const passwordRegex =
             /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
+
 
         if (!passwordRegex.test(password)) {
 
@@ -101,7 +129,7 @@ const createInstitution = async (req, res) => {
         // CHECK USERNAME
         // ==========================================
 
-        const existingAdmin =
+        const existingUsername =
             await InstitutionAdmin.findOne({
 
                 username: cleanUsername
@@ -109,7 +137,7 @@ const createInstitution = async (req, res) => {
             });
 
 
-        if (existingAdmin) {
+        if (existingUsername) {
 
             return res.status(400).json({
 
@@ -117,6 +145,32 @@ const createInstitution = async (req, res) => {
 
                 message:
                     "Username already exists."
+
+            });
+
+        }
+
+
+        // ==========================================
+        // CHECK EMAIL
+        // ==========================================
+
+        const existingEmail =
+            await InstitutionAdmin.findOne({
+
+                email: cleanEmail
+
+            });
+
+
+        if (existingEmail) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Email already exists."
 
             });
 
@@ -187,6 +241,9 @@ const createInstitution = async (req, res) => {
                 name:
                     "Institution Admin",
 
+                email:
+                    cleanEmail,
+
                 username:
                     cleanUsername,
 
@@ -253,6 +310,12 @@ const createInstitution = async (req, res) => {
                 id:
                     admin._id,
 
+                name:
+                    admin.name,
+
+                email:
+                    admin.email,
+
                 username:
                     admin.username
 
@@ -301,6 +364,58 @@ const createInstitution = async (req, res) => {
 
 
         // ==========================================
+        // HANDLE DUPLICATE KEY ERROR
+        // ==========================================
+
+        if (error.code === 11000) {
+
+            const duplicateField =
+                Object.keys(
+                    error.keyPattern || {}
+                )[0];
+
+
+            if (duplicateField === "email") {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Email already exists."
+
+                });
+
+            }
+
+
+            if (duplicateField === "username") { 
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Username already exists."
+
+                });
+
+            }
+
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "A record with the same information already exists."
+
+            });
+
+        }
+
+
+        // ==========================================
         // ERROR RESPONSE
         // ==========================================
 
@@ -331,7 +446,7 @@ const getInstitutions = async (req, res) => {
             await Institution.find()
                 .populate(
                     "institutionAdminId",
-                    "name username"
+                    "name email username"
                 )
                 .sort({
                     createdAt: -1
@@ -345,6 +460,7 @@ const getInstitutions = async (req, res) => {
             institutions
 
         });
+
 
     } catch (error) {
 

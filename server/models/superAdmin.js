@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const superAdminSchema = new mongoose.Schema(
     {
+        // ==================================================
+        // BASIC USER INFORMATION
+        // ==================================================
+
         name: {
             type: String,
             required: true,
@@ -14,6 +18,17 @@ const superAdminSchema = new mongoose.Schema(
             unique: true,
             lowercase: true,
             trim: true
+        },
+
+        contact: {
+            type: String,
+            default: "",
+            trim: true
+        },
+
+        profileImage: {
+            type: String,
+            default: null
         },
 
         googleId: {
@@ -81,6 +96,20 @@ const superAdminSchema = new mongoose.Schema(
         resetOtpAttempts: {
             type: Number,
             default: 0
+        },
+
+        // ==================================================
+        // LOGIN SESSION
+        // ==================================================
+
+        refreshTokenHash: {
+            type: String,
+            default: null
+        },
+
+        refreshTokenExpiresAt: {
+            type: Date,
+            default: null
         }
     },
     {
