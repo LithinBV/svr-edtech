@@ -94,15 +94,37 @@ const profileRoutes = require("./routes/profileRoutes");
 const app = express();
 
 
+
+
 /* =========================================================
    CORS
 ========================================================= */
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://svr-edtech.vercel.app",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 app.use(
-    cors({
-        origin: "http://localhost:5173",
-        credentials: true,
-    })
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests without Origin
+      // (Postman, server-to-server, etc.)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      console.error("CORS blocked origin:", origin);
+
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
 );
 
 
