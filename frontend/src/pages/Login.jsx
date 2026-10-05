@@ -1,9 +1,16 @@
 import { useEffect, useRef, useState } from "react";
+
 import { useNavigate } from "react-router-dom";
+
 import svrLogo from "../assets/images/svr-logo.png";
 
+const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+
+
+
 const GOOGLE_CLIENT_ID =
-    "156975952914-brbedulqojpg63ns1f12smic32ijll47.apps.googleusercontent.com";
+    "YOUR_EXISTING_GOOGLE_CLIENT_ID";
+
 
 function Login() {
     const navigate = useNavigate();
@@ -29,6 +36,7 @@ function Login() {
     const googleButtonRef = useRef(null);
     const googleInitializedRef = useRef(false);
 
+
     /*
      * ---------------------------------------------------------
      * CLEANUP
@@ -43,15 +51,10 @@ function Login() {
         };
     }, []);
 
+
     /*
      * ---------------------------------------------------------
      * GOOGLE IDENTITY SERVICES
-     * ---------------------------------------------------------
-     *
-     * We use Google's official renderButton() instead of
-     * calling google.accounts.id.prompt() from our own button.
-     *
-     * This gives us the normal Google Sign-In button flow.
      * ---------------------------------------------------------
      */
 
@@ -132,6 +135,7 @@ function Login() {
 
             return () => {
                 cancelled = true;
+
                 existingScript.removeEventListener(
                     "load",
                     initializeGoogle
@@ -141,7 +145,9 @@ function Login() {
 
         const script = document.createElement("script");
 
-        script.src = "https://accounts.google.com/gsi/client";
+        script.src =
+            "https://accounts.google.com/gsi/client";
+
         script.async = true;
         script.defer = true;
 
@@ -165,6 +171,7 @@ function Login() {
         };
     }, []);
 
+
     /*
      * ---------------------------------------------------------
      * MESSAGE
@@ -175,6 +182,7 @@ function Login() {
         setMessage(text);
         setMessageType(type);
     }
+
 
     /*
      * ---------------------------------------------------------
@@ -213,6 +221,7 @@ function Login() {
         }, 1000);
     }
 
+
     /*
      * ---------------------------------------------------------
      * STOP RESEND COUNTDOWN
@@ -230,6 +239,7 @@ function Login() {
 
         setResendSeconds(0);
     }
+
 
     /*
      * ---------------------------------------------------------
@@ -271,7 +281,7 @@ function Login() {
 
         try {
             const response = await fetch(
-                "/api/auth/login",
+                `${API_URL}/api/auth/login`,
                 {
                     method: "POST",
 
@@ -335,6 +345,7 @@ function Login() {
         }
     }
 
+
     /*
      * ---------------------------------------------------------
      * VERIFY OTP
@@ -363,7 +374,7 @@ function Login() {
         try {
             const response =
                 await fetch(
-                    "/api/auth/verify-otp",
+                    `${API_URL}/api/auth/verify-otp`,
                     {
                         method: "POST",
 
@@ -406,20 +417,12 @@ function Login() {
                 pendingUserName ||
                 "";
 
-            /*
-             * SAVE ACCESS TOKEN
-             */
-
             if (data.token) {
                 localStorage.setItem(
                     "token",
                     data.token
                 );
             }
-
-            /*
-             * SAVE REFRESH TOKEN
-             */
 
             if (data.refreshToken) {
                 localStorage.setItem(
@@ -428,20 +431,12 @@ function Login() {
                 );
             }
 
-            /*
-             * SAVE USER TYPE
-             */
-
             if (userType) {
                 localStorage.setItem(
                     "userType",
                     userType
                 );
             }
-
-            /*
-             * SAVE USER NAME
-             */
 
             if (userName) {
                 localStorage.setItem(
@@ -454,20 +449,12 @@ function Login() {
                 );
             }
 
-            /*
-             * SAVE EMAIL
-             */
-
             if (email) {
                 localStorage.setItem(
                     "userEmail",
                     email
                 );
             }
-
-            /*
-             * SAVE INSTITUTION ID
-             */
 
             if (
                 userType ===
@@ -486,10 +473,6 @@ function Login() {
 
             stopResendCountdown();
 
-            /*
-             * REDIRECT
-             */
-
             redirectUser(userType);
         } catch (error) {
             console.error(
@@ -505,6 +488,7 @@ function Login() {
             setIsLoading(false);
         }
     }
+
 
     /*
      * ---------------------------------------------------------
@@ -577,6 +561,7 @@ function Login() {
         }
     }
 
+
     /*
      * ---------------------------------------------------------
      * RESEND OTP
@@ -604,7 +589,7 @@ function Login() {
         try {
             const response =
                 await fetch(
-                    "/api/auth/resend-otp",
+                    `${API_URL}/api/auth/resend-otp`,
                     {
                         method: "POST",
 
@@ -663,6 +648,7 @@ function Login() {
         }
     }
 
+
     /*
      * ---------------------------------------------------------
      * BACK TO LOGIN
@@ -683,13 +669,10 @@ function Login() {
         showMessage("");
     }
 
+
     /*
      * ---------------------------------------------------------
      * GOOGLE RESPONSE
-     * ---------------------------------------------------------
-     *
-     * Google returns the ID token in response.credential.
-     * We send that credential to your existing backend.
      * ---------------------------------------------------------
      */
 
@@ -715,7 +698,7 @@ function Login() {
 
             const backendResponse =
                 await fetch(
-                    "/api/auth/google-login",
+                    `${API_URL}/api/auth/google-login`,
                     {
                         method: "POST",
 
@@ -743,13 +726,6 @@ function Login() {
 
                 return;
             }
-
-            /*
-             * YOUR EXISTING BACKEND FLOW:
-             *
-             * Google login returns the user information,
-             * then your application sends an OTP.
-             */
 
             setEmail(
                 data.email || ""
@@ -785,6 +761,7 @@ function Login() {
         }
     }
 
+
     /*
      * ---------------------------------------------------------
      * OTP INPUT
@@ -803,6 +780,7 @@ function Login() {
         );
     }
 
+
     /*
      * ---------------------------------------------------------
      * RENDER
@@ -814,9 +792,7 @@ function Login() {
 
             <div className="w-full max-w-5xl min-h-[650px] bg-white rounded-3xl overflow-hidden shadow-2xl grid grid-cols-1 md:grid-cols-2">
 
-                {/* =================================================
-                    LEFT SIDE
-                ================================================= */}
+                {/* LEFT SIDE */}
 
                 <div className="relative bg-[#FECA42] flex flex-col items-center justify-center text-center p-10 overflow-hidden">
 
@@ -843,17 +819,13 @@ function Login() {
                 </div>
 
 
-                {/* =================================================
-                    RIGHT SIDE
-                ================================================= */}
+                {/* RIGHT SIDE */}
 
                 <div className="flex items-center justify-center bg-white p-7 sm:p-10 md:p-12">
 
                     <div className="w-full max-w-md">
 
-                        {/* =================================================
-                            HEADING
-                        ================================================= */}
+                        {/* HEADING */}
 
                         {!isOtpStep ? (
 
@@ -887,11 +859,10 @@ function Login() {
                         )}
 
 
-                        {/* =================================================
-                            LOGIN FORM
-                        ================================================= */}
+                        {/* LOGIN FORM */}
 
                         {!isOtpStep && (
+
                             <>
 
                                 <form
@@ -986,6 +957,7 @@ function Login() {
                                     {/* MESSAGE */}
 
                                     {message && (
+
                                         <p
                                             className={`text-center text-sm font-medium ${
                                                 messageType ===
@@ -996,6 +968,7 @@ function Login() {
                                         >
                                             {message}
                                         </p>
+
                                     )}
 
 
@@ -1016,9 +989,7 @@ function Login() {
                                 </form>
 
 
-                                {/* =================================================
-                                    GOOGLE LOGIN
-                                ================================================= */}
+                                {/* GOOGLE LOGIN */}
 
                                 <div>
 
@@ -1035,8 +1006,6 @@ function Login() {
                                     </div>
 
 
-                                    {/* GOOGLE'S OFFICIAL BUTTON */}
-
                                     <div
                                         ref={
                                             googleButtonRef
@@ -1047,12 +1016,11 @@ function Login() {
                                 </div>
 
                             </>
+
                         )}
 
 
-                        {/* =================================================
-                            OTP FORM
-                        ================================================= */}
+                        {/* OTP FORM */}
 
                         {isOtpStep && (
 
@@ -1115,6 +1083,7 @@ function Login() {
                                 {/* MESSAGE */}
 
                                 {message && (
+
                                     <p
                                         className={`text-center text-sm font-medium ${
                                             messageType ===
@@ -1125,6 +1094,7 @@ function Login() {
                                     >
                                         {message}
                                     </p>
+
                                 )}
 
 
@@ -1169,14 +1139,15 @@ function Login() {
 
                                     {resendSeconds >
                                         0 && (
+
                                         <p className="mt-1 text-xs text-gray-400">
-                                            You can resend OTP
-                                            in{" "}
+                                            You can resend OTP{" "}
                                             {
                                                 resendSeconds
                                             }
                                             s
                                         </p>
+
                                     )}
 
                                 </div>

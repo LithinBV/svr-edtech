@@ -2,8 +2,27 @@
 // SVR EDTECH - AUTHENTICATION UTILS
 // ============================================================
 
+
+// ============================================================
+// API CONFIGURATION
+// ============================================================
+
+const API_BASE =
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:3000/api";
+
+
+// ============================================================
+// TOKEN SETTINGS
+// ============================================================
+
 const ACCESS_TOKEN_REFRESH_BUFFER = 60 * 1000; // 1 minute
 const REFRESH_CHECK_INTERVAL = 30 * 1000; // 30 seconds
+
+
+// ============================================================
+// INTERNAL STATE
+// ============================================================
 
 let refreshInProgress = false;
 let refreshPromise = null;
@@ -18,17 +37,21 @@ export function getToken() {
     return localStorage.getItem("token");
 }
 
+
 export function getRefreshToken() {
     return localStorage.getItem("refreshToken");
 }
+
 
 export function getUserType() {
     return localStorage.getItem("userType");
 }
 
+
 export function getUserName() {
     return localStorage.getItem("userName") || "";
 }
+
 
 export function getInstitutionId() {
     return localStorage.getItem("institutionId");
@@ -76,21 +99,27 @@ export function decodeJWT(token) {
             return null;
         }
 
+
         const parts = token.split(".");
+
 
         if (parts.length !== 3) {
             return null;
         }
 
+
         let payload = parts[1];
+
 
         payload = payload
             .replace(/-/g, "+")
             .replace(/_/g, "/");
 
+
         while (payload.length % 4 !== 0) {
             payload += "=";
         }
+
 
         const decodedPayload = decodeURIComponent(
             atob(payload)
@@ -110,6 +139,7 @@ export function decodeJWT(token) {
                 })
                 .join("")
         );
+
 
         return JSON.parse(decodedPayload);
 
@@ -132,56 +162,86 @@ export function decodeJWT(token) {
 export async function refreshAccessToken() {
 
     // ----------------------------------------------------------
-    // IMPORTANT:
-    // If another refresh request is already running,
-    // wait for that same request instead of starting another one.
+    // PREVENT MULTIPLE REFRESH REQUESTS
     // ----------------------------------------------------------
 
-    if (refreshInProgress && refreshPromise) {
+    if (
+        refreshInProgress &&
+        refreshPromise
+    ) {
+
         return refreshPromise;
     }
 
+
+    // ----------------------------------------------------------
+    // GET REFRESH TOKEN
+    // ----------------------------------------------------------
 
     const refreshToken =
         localStorage.getItem("refreshToken");
 
 
     if (!refreshToken) {
+
+        console.warn(
+            "No refresh token available."
+        );
+
         return false;
     }
 
 
+    // ----------------------------------------------------------
+    // MARK REFRESH AS IN PROGRESS
+    // ----------------------------------------------------------
+
     refreshInProgress = true;
 
+
+    // ----------------------------------------------------------
+    // CREATE REFRESH REQUEST
+    // ----------------------------------------------------------
 
     refreshPromise = (async () => {
 
         try {
 
-            const response =
-                await fetch(
-                    "/api/auth/refresh",
-                    {
-                        method: "POST",
+            console.log(
+                "Refreshing access token..."
+            );
 
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
 
-                        body: JSON.stringify({
-                            refreshToken
-                        })
-                    }
-                );
+            // ==================================================
+            // CALL BACKEND REFRESH ENDPOINT
+            // ==================================================
 
+            const response = await fetch(
+                `${API_BASE}/auth/refresh`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+                    },
+
+                    body: JSON.stringify({
+                        refreshToken,
+                    }),
+                }
+            );
+
+
+            // ==================================================
+            // READ RESPONSE
+            // ==================================================
 
             let data = {};
 
             try {
 
-                data =
-                    await response.json();
+                data = await response.json();
 
             } catch (jsonError) {
 
@@ -189,7 +249,6 @@ export async function refreshAccessToken() {
                     "Invalid refresh response:",
                     jsonError
                 );
-
             }
 
 
@@ -203,14 +262,20 @@ export async function refreshAccessToken() {
                 data.token
             ) {
 
-                // Save new access token
+                // ------------------------------------------------
+                // SAVE NEW ACCESS TOKEN
+                // ------------------------------------------------
+
                 localStorage.setItem(
                     "token",
                     data.token
                 );
 
 
-                // Save rotated refresh token
+                // ------------------------------------------------
+                // SAVE NEW REFRESH TOKEN
+                // ------------------------------------------------
+
                 if (data.refreshToken) {
 
                     localStorage.setItem(
@@ -220,7 +285,10 @@ export async function refreshAccessToken() {
                 }
 
 
-                // Update user type
+                // ------------------------------------------------
+                // UPDATE USER TYPE
+                // ------------------------------------------------
+
                 if (data.userType) {
 
                     localStorage.setItem(
@@ -230,12 +298,38 @@ export async function refreshAccessToken() {
                 }
 
 
-                // Update institution ID
+                // ------------------------------------------------
+                // UPDATE USER NAME
+                // ------------------------------------------------
+
+                if (data.userName) {
+
+                    localStorage.setItem(
+                        "userName",
+                        data.userName
+                    );
+                }
+
+
+                // ------------------------------------------------
+                // UPDATE INSTITUTION ID
+                // ------------------------------------------------
+
                 if (data.institutionId) {
 
                     localStorage.setItem(
                         "institutionId",
                         data.institutionId
+                    );
+
+                } else if (
+                    data.userType &&
+                    data.userType !==
+                        "INSTITUTION_ADMIN"
+                ) {
+
+                    localStorage.removeItem(
+                        "institutionId"
                     );
                 }
 
@@ -243,6 +337,7 @@ export async function refreshAccessToken() {
                 console.log(
                     "Access token refreshed successfully."
                 );
+
 
                 return true;
             }
@@ -254,56 +349,56 @@ export async function refreshAccessToken() {
 
             console.warn(
                 "Refresh request failed:",
-                data.message || response.status
+                data.message ||
+                    response.status
             );
 
 
-            /*
-             * IMPORTANT:
-             *
-             * Do NOT immediately clear localStorage here.
-             *
-             * A refresh can fail because another browser tab
-             * already rotated the refresh token.
-             *
-             * Give the browser a short opportunity to see whether
-             * another refresh has already updated localStorage.
-             */
+            // --------------------------------------------------
+            // GIVE ANOTHER TAB A CHANCE
+            // --------------------------------------------------
 
-            await new Promise((resolve) => {
-                setTimeout(resolve, 500);
-            });
+            await new Promise(
+                (resolve) => {
+                    setTimeout(
+                        resolve,
+                        500
+                    );
+                }
+            );
 
 
             const latestToken =
-                localStorage.getItem("token");
+                localStorage.getItem(
+                    "token"
+                );
+
 
             const latestRefreshToken =
-                localStorage.getItem("refreshToken");
+                localStorage.getItem(
+                    "refreshToken"
+                );
 
+
+            // --------------------------------------------------
+            // ANOTHER TAB MAY HAVE REFRESHED THE SESSION
+            // --------------------------------------------------
 
             if (
                 latestToken &&
                 latestRefreshToken &&
-                latestRefreshToken !== refreshToken
+                latestRefreshToken !==
+                    refreshToken
             ) {
 
                 console.log(
                     "Another refresh updated the session."
                 );
 
+
                 return true;
             }
 
-
-            /*
-             * Only return false.
-             *
-             * Do NOT clear authentication data here.
-             *
-             * ProtectedRoute / the application can decide whether
-             * the user really needs to log in again.
-             */
 
             return false;
 
@@ -314,10 +409,6 @@ export async function refreshAccessToken() {
                 error
             );
 
-            /*
-             * Do not immediately destroy the session on a
-             * temporary network/server error.
-             */
 
             return false;
 
@@ -343,45 +434,73 @@ export async function ensureValidAccessToken() {
     const token =
         localStorage.getItem("token");
 
+
     const refreshToken =
-        localStorage.getItem("refreshToken");
+        localStorage.getItem(
+            "refreshToken"
+        );
 
 
-    if (!token || !refreshToken) {
+    // ----------------------------------------------------------
+    // NO AUTH DATA
+    // ----------------------------------------------------------
+
+    if (
+        !token ||
+        !refreshToken
+    ) {
+
         return false;
     }
 
 
     try {
 
+        // ------------------------------------------------------
+        // DECODE ACCESS TOKEN
+        // ------------------------------------------------------
+
         const payload =
             decodeJWT(token);
 
 
         // ------------------------------------------------------
-        // JWT cannot be decoded
+        // TOKEN CANNOT BE DECODED
         // ------------------------------------------------------
 
-        if (!payload || !payload.exp) {
+        if (
+            !payload ||
+            !payload.exp
+        ) {
+
+            console.warn(
+                "Access token cannot be decoded. Refreshing..."
+            );
+
 
             return await refreshAccessToken();
         }
 
 
+        // ------------------------------------------------------
+        // CALCULATE EXPIRATION
+        // ------------------------------------------------------
+
         const expirationTime =
             payload.exp * 1000;
+
 
         const currentTime =
             Date.now();
 
 
         // ------------------------------------------------------
-        // Token still has more than 1 minute remaining
+        // TOKEN STILL VALID
         // ------------------------------------------------------
 
         if (
             expirationTime -
-            currentTime >
+                currentTime >
             ACCESS_TOKEN_REFRESH_BUFFER
         ) {
 
@@ -390,8 +509,13 @@ export async function ensureValidAccessToken() {
 
 
         // ------------------------------------------------------
-        // Token expired or is about to expire
+        // TOKEN EXPIRED OR CLOSE TO EXPIRING
         // ------------------------------------------------------
+
+        console.log(
+            "Access token expired or about to expire. Refreshing..."
+        );
+
 
         return await refreshAccessToken();
 
@@ -401,6 +525,7 @@ export async function ensureValidAccessToken() {
             "Access token check failed:",
             error
         );
+
 
         return await refreshAccessToken();
     }
@@ -413,6 +538,10 @@ export async function ensureValidAccessToken() {
 
 export function startTokenRefreshWatcher() {
 
+    // ----------------------------------------------------------
+    // PREVENT MULTIPLE WATCHERS
+    // ----------------------------------------------------------
+
     if (refreshWatcherStarted) {
         return;
     }
@@ -422,11 +551,12 @@ export function startTokenRefreshWatcher() {
 
 
     // ----------------------------------------------------------
-    // Check immediately
+    // CHECK IMMEDIATELY
     // ----------------------------------------------------------
 
     ensureValidAccessToken()
         .catch((error) => {
+
             console.error(
                 "Initial token check failed:",
                 error
@@ -435,55 +565,67 @@ export function startTokenRefreshWatcher() {
 
 
     // ----------------------------------------------------------
-    // Check every 30 seconds
+    // CHECK EVERY 30 SECONDS
     // ----------------------------------------------------------
 
     const intervalId =
-        setInterval(async () => {
+        setInterval(
+            async () => {
 
-            const token =
-                localStorage.getItem("token");
-
-            const refreshToken =
-                localStorage.getItem("refreshToken");
-
-
-            // No active session
-            if (!token || !refreshToken) {
-                return;
-            }
+                const token =
+                    localStorage.getItem(
+                        "token"
+                    );
 
 
-            const valid =
-                await ensureValidAccessToken();
+                const refreshToken =
+                    localStorage.getItem(
+                        "refreshToken"
+                    );
 
 
-            /*
-             * IMPORTANT:
-             *
-             * Do NOT automatically redirect to /login here.
-             *
-             * A failed refresh can be temporary or another tab
-             * may have refreshed the token.
-             *
-             * ProtectedRoute/API requests will handle genuine
-             * authentication failures.
-             */
+                // ----------------------------------------------
+                // NO ACTIVE SESSION
+                // ----------------------------------------------
 
-            if (!valid) {
+                if (
+                    !token ||
+                    !refreshToken
+                ) {
 
-                console.warn(
-                    "Token refresh check failed. Keeping current session."
-                );
+                    return;
+                }
 
-                return;
-            }
 
-        }, REFRESH_CHECK_INTERVAL);
+                // ----------------------------------------------
+                // CHECK TOKEN
+                // ----------------------------------------------
+
+                const valid =
+                    await ensureValidAccessToken();
+
+
+                // ----------------------------------------------
+                // REFRESH FAILED
+                // ----------------------------------------------
+
+                if (!valid) {
+
+                    console.warn(
+                        "Token refresh check failed. Keeping current session."
+                    );
+
+
+                    return;
+                }
+
+            },
+            REFRESH_CHECK_INTERVAL
+        );
 
 
     // ----------------------------------------------------------
-    // Store interval so it can be cleared during logout
+    // STORE INTERVAL
     // ----------------------------------------------------------
 
     window.__svrAuthRefreshInterval =
@@ -504,6 +646,7 @@ export function stopTokenRefreshWatcher() {
         clearInterval(
             window.__svrAuthRefreshInterval
         );
+
 
         window.__svrAuthRefreshInterval =
             null;
@@ -528,21 +671,25 @@ export async function logoutUser() {
 
     try {
 
+        // ------------------------------------------------------
+        // TELL BACKEND TO LOG OUT
+        // ------------------------------------------------------
+
         if (refreshToken) {
 
             await fetch(
-                "/api/auth/logout",
+                `${API_BASE}/auth/logout`,
                 {
                     method: "POST",
 
                     headers: {
                         "Content-Type":
-                            "application/json"
+                            "application/json",
                     },
 
                     body: JSON.stringify({
-                        refreshToken
-                    })
+                        refreshToken,
+                    }),
                 }
             );
         }
@@ -556,7 +703,16 @@ export async function logoutUser() {
 
     } finally {
 
+        // ------------------------------------------------------
+        // STOP REFRESH WATCHER
+        // ------------------------------------------------------
+
         stopTokenRefreshWatcher();
+
+
+        // ------------------------------------------------------
+        // CLEAR LOCAL AUTH DATA
+        // ------------------------------------------------------
 
         clearAuthData();
     }
