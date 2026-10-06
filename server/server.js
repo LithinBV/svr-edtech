@@ -73,8 +73,9 @@ app.use(cors(corsOptions));
    DATABASE
 ========================================================= */
 
-connectDB();
-
+connectDB().catch((error) => {
+    console.error("Database initialization failed:", error.message);
+});
 /* =========================================================
    SECURITY
 ========================================================= */
