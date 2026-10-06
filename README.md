@@ -2,4 +2,4 @@
 
 ## 🚀 Live Demo
 
-[Open SVR-EDTECH](https://svr-edtech-git-main-svr-edtech.vercel.app/)
+[Open SVR-EDTECH](https://svr-edtech.vercel.app/)
