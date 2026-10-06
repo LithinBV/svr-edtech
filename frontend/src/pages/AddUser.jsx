@@ -2,6 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function AddUser() {
+
+    const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000")
+  .replace(/\/$/, "");
+
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
@@ -82,7 +86,7 @@ function AddUser() {
         try {
             setIsCreating(true);
 
-            const response = await fetch("/api/users", {
+            const response = await fetch(`${API_URL}/api/users`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

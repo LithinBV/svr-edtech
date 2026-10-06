@@ -2,32 +2,22 @@
 // SVR EDTECH - AUTHENTICATION UTILS
 // ============================================================
 
+
 // ============================================================
 // API CONFIGURATION
 // ============================================================
 
-// VITE_API_URL should contain only the backend URL.
-//
-// Local:
-// VITE_API_URL=http://localhost:3000
-//
-// Production:
-// VITE_API_URL=https://svr-edtech-server.vercel.app
-
 const API_BASE =
     import.meta.env.VITE_API_URL ||
-    "http://localhost:3000";
+    "http://localhost:3000/api";
 
 
 // ============================================================
 // TOKEN SETTINGS
 // ============================================================
 
-// Refresh access token when it has 1 minute or less remaining.
-const ACCESS_TOKEN_REFRESH_BUFFER = 60 * 1000;
-
-// Check token every 30 seconds.
-const REFRESH_CHECK_INTERVAL = 30 * 1000;
+const ACCESS_TOKEN_REFRESH_BUFFER = 60 * 1000; // 1 minute
+const REFRESH_CHECK_INTERVAL = 30 * 1000; // 30 seconds
 
 
 // ============================================================
@@ -102,32 +92,40 @@ export function clearAuthData() {
 // ============================================================
 
 export function decodeJWT(token) {
+
     try {
+
         if (!token || typeof token !== "string") {
             return null;
         }
 
+
         const parts = token.split(".");
+
 
         if (parts.length !== 3) {
             return null;
         }
 
+
         let payload = parts[1];
 
-        // Convert Base64URL to Base64.
+
         payload = payload
             .replace(/-/g, "+")
             .replace(/_/g, "/");
+
 
         while (payload.length % 4 !== 0) {
             payload += "=";
         }
 
+
         const decodedPayload = decodeURIComponent(
             atob(payload)
                 .split("")
                 .map((character) => {
+
                     return (
                         "%" +
                         (
@@ -137,13 +135,16 @@ export function decodeJWT(token) {
                                 .toString(16)
                         ).slice(-2)
                     );
+
                 })
                 .join("")
         );
 
+
         return JSON.parse(decodedPayload);
 
     } catch (error) {
+
         console.error(
             "JWT decode failed:",
             error
@@ -168,6 +169,7 @@ export async function refreshAccessToken() {
         refreshInProgress &&
         refreshPromise
     ) {
+
         return refreshPromise;
     }
 
@@ -215,7 +217,7 @@ export async function refreshAccessToken() {
             // ==================================================
 
             const response = await fetch(
-                `${API_BASE}/api/auth/refresh-token`,
+                `${API_BASE}/auth/refresh`,
                 {
                     method: "POST",
 
@@ -239,8 +241,7 @@ export async function refreshAccessToken() {
 
             try {
 
-                data =
-                    await response.json();
+                data = await response.json();
 
             } catch (jsonError) {
 
@@ -248,7 +249,6 @@ export async function refreshAccessToken() {
                     "Invalid refresh response:",
                     jsonError
                 );
-
             }
 
 
@@ -338,6 +338,7 @@ export async function refreshAccessToken() {
                     "Access token refreshed successfully."
                 );
 
+
                 return true;
             }
 
@@ -372,6 +373,7 @@ export async function refreshAccessToken() {
                     "token"
                 );
 
+
             const latestRefreshToken =
                 localStorage.getItem(
                     "refreshToken"
@@ -379,7 +381,7 @@ export async function refreshAccessToken() {
 
 
             // --------------------------------------------------
-            // ANOTHER TAB MAY HAVE REFRESHED
+            // ANOTHER TAB MAY HAVE REFRESHED THE SESSION
             // --------------------------------------------------
 
             if (
@@ -393,6 +395,7 @@ export async function refreshAccessToken() {
                     "Another refresh updated the session."
                 );
 
+
                 return true;
             }
 
@@ -405,6 +408,7 @@ export async function refreshAccessToken() {
                 "Token refresh error:",
                 error
             );
+
 
             return false;
 
@@ -430,6 +434,7 @@ export async function ensureValidAccessToken() {
     const token =
         localStorage.getItem("token");
 
+
     const refreshToken =
         localStorage.getItem(
             "refreshToken"
@@ -444,6 +449,7 @@ export async function ensureValidAccessToken() {
         !token ||
         !refreshToken
     ) {
+
         return false;
     }
 
@@ -471,6 +477,7 @@ export async function ensureValidAccessToken() {
                 "Access token cannot be decoded. Refreshing..."
             );
 
+
             return await refreshAccessToken();
         }
 
@@ -481,6 +488,7 @@ export async function ensureValidAccessToken() {
 
         const expirationTime =
             payload.exp * 1000;
+
 
         const currentTime =
             Date.now();
@@ -518,6 +526,7 @@ export async function ensureValidAccessToken() {
             error
         );
 
+
         return await refreshAccessToken();
     }
 }
@@ -552,7 +561,6 @@ export function startTokenRefreshWatcher() {
                 "Initial token check failed:",
                 error
             );
-
         });
 
 
@@ -569,6 +577,7 @@ export function startTokenRefreshWatcher() {
                         "token"
                     );
 
+
                 const refreshToken =
                     localStorage.getItem(
                         "refreshToken"
@@ -583,6 +592,7 @@ export function startTokenRefreshWatcher() {
                     !token ||
                     !refreshToken
                 ) {
+
                     return;
                 }
 
@@ -604,6 +614,7 @@ export function startTokenRefreshWatcher() {
                     console.warn(
                         "Token refresh check failed. Keeping current session."
                     );
+
 
                     return;
                 }
@@ -636,6 +647,7 @@ export function stopTokenRefreshWatcher() {
             window.__svrAuthRefreshInterval
         );
 
+
         window.__svrAuthRefreshInterval =
             null;
     }
@@ -666,7 +678,7 @@ export async function logoutUser() {
         if (refreshToken) {
 
             await fetch(
-                `${API_BASE}/api/auth/logout`,
+                `${API_BASE}/auth/logout`,
                 {
                     method: "POST",
 
@@ -704,4 +716,4 @@ export async function logoutUser() {
 
         clearAuthData();
     }
-}
+}   

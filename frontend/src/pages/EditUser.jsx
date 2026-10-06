@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 function EditUser() {
+
+    const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000")
+  .replace(/\/$/, "");
+  
     const navigate = useNavigate();
     const { id } = useParams();
 
@@ -73,7 +77,7 @@ function EditUser() {
             setError("");
 
             const response = await fetch(
-                `/api/users/${id}`,
+                `${API_URL}/api/users/${id}`,
                 {
                     method: "GET",
                     headers: {
@@ -220,7 +224,7 @@ function EditUser() {
             setSaving(true);
 
             const response = await fetch(
-                `/api/users/${id}`,
+                `${API_URL}/api/users/${id}`,
                 {
                     method: "PUT",
                     headers: {
@@ -326,7 +330,7 @@ function EditUser() {
             setError("");
 
             const response = await fetch(
-                `/api/users/${id}`,
+                `${API_URL}/api/users/${id}`,
                 {
                     method: "DELETE",
                     headers: {

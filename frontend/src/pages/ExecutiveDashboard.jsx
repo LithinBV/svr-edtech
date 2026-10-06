@@ -9,7 +9,9 @@ import { useNavigate } from "react-router-dom";
 
 import Icon from "../components/Executive/ExecutiveIcon";
 
-const API_BASE = "/api";
+const API_BASE =
+  (import.meta.env.VITE_API_URL || "http://localhost:3000")
+    .replace(/\/$/, "") + "/api";
 
 // ============================================================
 // DATE HELPERS

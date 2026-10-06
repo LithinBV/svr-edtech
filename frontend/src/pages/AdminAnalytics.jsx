@@ -6,7 +6,8 @@ import AnalyticsSourceWise from "../components/Admin/Analytics/AnalyticsSourceWi
 import AnalyticsProgramWise from "../components/Admin/Analytics/AnalyticsProgramWise";
 import AnalyticsUserWise from "../components/Admin/Analytics/AnalyticsUserWise";
 
-const API_BASE = "http://localhost:3000";
+const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:3000")
+  .replace(/\/$/, "");
 
 /* ============================================================
    ICON

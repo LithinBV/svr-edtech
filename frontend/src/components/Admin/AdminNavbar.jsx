@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000")
+  .replace(/\/$/, "");
+
 function AdminNavbar({
   sidebarCollapsed,
   setSidebarCollapsed,
@@ -16,7 +19,7 @@ function AdminNavbar({
       try {
         const token = localStorage.getItem("token");
 
-        const response = await fetch("/api/profile", {
+        const response = await fetch(`${API_URL}/api/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

@@ -9,6 +9,10 @@ import indianRegions from "../data/indianRegions.js";
 // ============================================================
 
 function CreateInstitution() {
+
+    const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000")
+  .replace(/\/$/, "");
+  
     const navigate = useNavigate();
 
     // ========================================================
@@ -271,7 +275,7 @@ function CreateInstitution() {
         try {
             const response =
                 await fetch(
-                    "/api/institutions",
+                    "${API_URL}/api/institutions",
                     {
                         method: "POST",
 

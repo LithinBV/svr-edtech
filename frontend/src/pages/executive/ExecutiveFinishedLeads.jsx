@@ -16,7 +16,9 @@ import Pagination from "../../components/common/Pagination";
 // API
 // ============================================================
 
-const API_BASE = "/api";
+const API_BASE =
+  (import.meta.env.VITE_API_URL || "http://localhost:3000")
+    .replace(/\/$/, "") + "/api";
 
 
 // ============================================================

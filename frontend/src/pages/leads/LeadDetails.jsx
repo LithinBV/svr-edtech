@@ -11,7 +11,9 @@ import {
     LATEST_REMARK_OPTIONS,
 } from "../../constants/leadOptions";
 
-const API_BASE = "/api";
+const API_BASE =
+  (import.meta.env.VITE_API_URL || "http://localhost:3000")
+    .replace(/\/$/, "") + "/api";
 
 const LeadDetails = () => {
     const { id } = useParams();

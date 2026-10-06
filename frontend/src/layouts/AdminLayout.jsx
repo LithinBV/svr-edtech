@@ -4,6 +4,10 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import AdminSidebar from "../components/Admin/AdminSidebar";
 import AdminNavbar from "../components/Admin/AdminNavbar";
 
+const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000")
+  .replace(/\/$/, "");
+
+
 function AdminLayout() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -65,7 +69,7 @@ function AdminLayout() {
                     return;
                 }
 
-                const response = await fetch("/api/profile", {
+                const response = await fetch(`${API_URL}/api/profile`, {
                     method: "GET",
                     headers: {
                         Authorization: `Bearer ${token}`,

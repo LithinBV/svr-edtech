@@ -185,9 +185,9 @@ const EmailComposer = ({
     try {
       setTemplatesLoading(true);
 
-      const API_BASE =
-        import.meta.env.VITE_API_URL ||
-        "http://localhost:3000/api";
+     const API_BASE =
+    (import.meta.env.VITE_API_URL || "http://localhost:3000")
+        .replace(/\/$/, "") + "/api";
 
       const response = await fetch(
         `${API_BASE}/email-templates`
