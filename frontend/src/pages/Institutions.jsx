@@ -2,8 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 function Institutions() {
 
-    const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000")
-  .replace(/\/$/, "");
+    const API_URL = import.meta.env.VITE_API_URL;
   
     const [institutions, setInstitutions] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
@@ -54,7 +53,7 @@ function Institutions() {
             }
 
             const response = await fetch(
-                "${API_URL}/api/institutions",
+                `${API_URL}/api/institutions`,
                 {
                     method: "GET",
                     headers: {

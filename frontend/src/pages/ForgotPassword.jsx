@@ -4,8 +4,7 @@ import svrLogo from "../assets/images/svr-logo.png";
 
 function ForgotPassword() {
 
-    const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000")
-  .replace(/\/$/, "");
+    const API_URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
 
     const [step, setStep] = useState(1);
@@ -61,7 +60,7 @@ function ForgotPassword() {
         setMessage("");
 
         try {
-            const response = await fetch("${API_URL}/api/auth/forgot-password", {
+            const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -172,7 +171,7 @@ function ForgotPassword() {
 
         try {
             const response = await fetch(
-                "${API_URL}/api/auth/reset-password",
+                `${API_URL}/api/auth/reset-password`,
                 {
                     method: "POST",
                     headers: {

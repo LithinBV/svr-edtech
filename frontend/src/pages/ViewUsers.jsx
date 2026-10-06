@@ -19,8 +19,7 @@ import { useNavigate } from "react-router-dom";
 
 function ViewUsers() {
 
-    const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000")
-  .replace(/\/$/, "");
+    const API_URL = import.meta.env.VITE_API_URL;
   
     const navigate = useNavigate();
 
@@ -214,7 +213,7 @@ function ViewUsers() {
         setError("");
 
         try {
-            const response = await fetch("${API_URL}/api/users", {
+            const response = await fetch(`${API_URL}/api/users`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -296,7 +295,7 @@ function ViewUsers() {
         setTeamError("");
 
         try {
-            const response = await fetch("${API_URL}/api/teams", {
+            const response = await fetch(`${API_URL}/api/teams`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,

@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 
-const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000")
-  .replace(/\/$/, "");
+const API_URL = import.meta.env.VITE_API_URL;
 
 
 // ==================================================
@@ -75,7 +74,7 @@ const useUserActivity = () => {
 
                 const response =
                     await fetch(
-                        "${API_URL}/api/users/activity",
+                        `${API_URL}/api/users/activity`,
                         {
                             method: "POST",
 

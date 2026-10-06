@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-const API_URL = import.meta.env.VITE_API_URL || "";
+const API_URL = import.meta.env.VITE_API_URL ;
 
 const MANAGER_TEAM_ENDPOINT = `${API_URL}/api/manager/leads/executives`;
 const MANAGER_LEADS_ENDPOINT = `${API_URL}/api/manager/leads`;

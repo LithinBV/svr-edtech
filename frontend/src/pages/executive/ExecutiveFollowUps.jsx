@@ -7,8 +7,7 @@ import React, {
 import { useNavigate } from "react-router-dom";
 
 const API_BASE =
-  (import.meta.env.VITE_API_URL || "http://localhost:3000")
-    .replace(/\/$/, "") + "/api";
+  import.meta.env.VITE_API_URL + "/api";
 
 /* ============================================================
    FOLLOW-UP STATUS

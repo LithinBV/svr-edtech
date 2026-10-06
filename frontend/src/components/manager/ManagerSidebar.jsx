@@ -463,9 +463,7 @@ function ManagerSidebar({
                 }
 
 
-                const API_URL =
-                    import.meta.env.VITE_API_URL ||
-                    "";
+               const API_URL = import.meta.env.VITE_API_URL;
 
 
                 const response =
@@ -618,9 +616,7 @@ function ManagerSidebar({
                     "refreshToken"
                 );
 
-            const API_URL =
-                import.meta.env.VITE_API_URL ||
-                "";
+           const API_URL = import.meta.env.VITE_API_URL;
 
             if (refreshToken) {
 

@@ -3,8 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 function EditUser() {
 
-    const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000")
-  .replace(/\/$/, "");
+    const API_URL = import.meta.env.VITE_API_URL;
   
     const navigate = useNavigate();
     const { id } = useParams();

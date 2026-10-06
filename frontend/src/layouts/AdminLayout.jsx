@@ -4,8 +4,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import AdminSidebar from "../components/Admin/AdminSidebar";
 import AdminNavbar from "../components/Admin/AdminNavbar";
 
-const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000")
-  .replace(/\/$/, "");
+const API_URL = import.meta.env.VITE_API_URL;
 
 
 function AdminLayout() {

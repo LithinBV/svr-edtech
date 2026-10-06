@@ -10,8 +10,7 @@ import { useNavigate } from "react-router-dom";
 import LeadPageLayout from "../../components/leads/LeadPageLayout";
 
 const API_BASE =
-  (import.meta.env.VITE_API_URL || "http://localhost:3000")
-    .replace(/\/$/, "") + "/api";
+  import.meta.env.VITE_API_URL + "/api";
 
 const NewLeads = () => {
 

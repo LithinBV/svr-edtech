@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
     GET /api/manager/leads/follow-ups
 */
 
-const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+const API_URL = import.meta.env.VITE_API_URL;
 
 const STATUS_META = {
   NEW: { label: "New", className: "bg-sky-50 text-sky-700 border-sky-100" },
