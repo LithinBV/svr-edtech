@@ -56,9 +56,7 @@ const leadHistoryRoutes = require("./routes/leadHistoryRoutes");
 ========================================================= */
 
 const communicationRoutes = require("./routes/communicationRoutes");
-
 const whatsappRoutes = require("./routes/whatsappRoutes");
-
 const emailRoutes = require("./routes/emailRoutes");
 const emailTemplateRoutes = require("./routes/emailTemplateRoutes");
 
@@ -94,37 +92,153 @@ const profileRoutes = require("./routes/profileRoutes");
 const app = express();
 
 
-
-
 /* =========================================================
    CORS
 ========================================================= */
 
+/*
+   IMPORTANT
+
+   Frontend:
+   https://svr-edtech.vercel.app
+
+   Backend:
+   https://svr-edtech-server.vercel.app
+
+   We allow:
+   - Local Vite development
+   - Production Vercel frontend
+*/
+
 const allowedOrigins = [
-  "http://localhost:5173",
-  "https://svr-edtech.vercel.app",
-  process.env.FRONTEND_URL,
-].filter(Boolean);
+    "http://localhost:5173",
+    "https://svr-edtech.vercel.app",
+];
+
+
+/*
+   CORS middleware
+*/
 
 app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests without Origin
-      // (Postman, server-to-server, etc.)
-      if (!origin) {
-        return callback(null, true);
-      }
+    cors({
+        origin: function (origin, callback) {
 
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+            /*
+               Requests such as Postman/server-to-server
+               may not contain an Origin header.
+            */
 
-      console.error("CORS blocked origin:", origin);
+            if (!origin) {
+                return callback(null, true);
+            }
 
-      return callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-  })
+
+            /*
+               Allow known frontend origins
+            */
+
+            if (allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
+
+
+            /*
+               Block unknown origins
+            */
+
+            console.error(
+                "================================="
+            );
+
+            console.error(
+                "❌ CORS BLOCKED"
+            );
+
+            console.error(
+                "Origin:",
+                origin
+            );
+
+            console.error(
+                "================================="
+            );
+
+            return callback(
+                new Error(
+                    `CORS blocked origin: ${origin}`
+                )
+            );
+        },
+
+        methods: [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "OPTIONS",
+        ],
+
+        allowedHeaders: [
+            "Content-Type",
+            "Authorization",
+        ],
+
+        credentials: true,
+
+        optionsSuccessStatus: 204,
+    })
+);
+
+
+/*
+   Explicit OPTIONS / preflight handling
+*/
+
+app.options(
+    "*",
+    cors({
+        origin: function (origin, callback) {
+
+            if (!origin) {
+                return callback(null, true);
+            }
+
+            if (allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
+
+            console.error(
+                "CORS preflight blocked:",
+                origin
+            );
+
+            return callback(
+                new Error(
+                    `CORS blocked origin: ${origin}`
+                )
+            );
+        },
+
+        methods: [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "OPTIONS",
+        ],
+
+        allowedHeaders: [
+            "Content-Type",
+            "Authorization",
+        ],
+
+        credentials: true,
+
+        optionsSuccessStatus: 204,
+    })
 );
 
 
@@ -169,16 +283,16 @@ app.use(
 ========================================================= */
 
 /*
-    Manager Leads must be registered BEFORE
-    the generic /api/manager routes.
+   Manager Leads must be registered BEFORE
+   the generic /api/manager routes.
 
-    Otherwise:
+   Otherwise:
 
-    /api/manager/:id
+   /api/manager/:id
 
-    could catch:
+   could catch:
 
-    /api/manager/leads
+   /api/manager/leads
 */
 
 app.use(
@@ -212,9 +326,9 @@ const pagesDirectory = path.join(
 ========================================================= */
 
 /*
-    Supports:
+   Supports:
 
-    /pages/login.html
+   /pages/login.html
 */
 
 app.get(
@@ -243,7 +357,6 @@ app.get(
                 301,
                 `/${pageName}`
             );
-
         }
 
         next();
@@ -281,7 +394,6 @@ app.get(
                 301,
                 `/${pageName}`
             );
-
         }
 
         next();
@@ -307,20 +419,40 @@ app.use(
    API ROUTES
 ========================================================= */
 
+
+/* =========================
+   AUTH
+========================= */
+
 app.use(
     "/api/auth",
     authRoutes
 );
+
+
+/* =========================
+   ADMIN
+========================= */
 
 app.use(
     "/api/admin",
     adminRoutes
 );
 
+
+/* =========================
+   INSTITUTIONS
+========================= */
+
 app.use(
     "/api/institutions",
     institutionRoutes
 );
+
+
+/* =========================
+   USERS
+========================= */
 
 app.use(
     "/api/users",
@@ -343,19 +475,17 @@ app.use(
 ========================================================= */
 
 /*
-    GET:
+   GET:
 
-    /api/finished-leads
+   /api/finished-leads
 
-    Returns only leads where:
+   Returns leads where:
 
-    latestRemark = ENROLLED
+   latestRemark = ENROLLED
 
-    OR
+   OR
 
-    latestRemark = NOT_INTERESTED
-
-    These leads are not deleted.
+   latestRemark = NOT_INTERESTED
 */
 
 app.use(
@@ -369,19 +499,19 @@ app.use(
 ========================================================= */
 
 /*
-    GET:
+   GET:
 
-    /api/communications/lead/:leadId
+   /api/communications/lead/:leadId
 
-    GET:
+   GET:
 
-    /api/communications/lead/:leadId/:type
+   /api/communications/lead/:leadId/:type
 
-    Types:
+   Types:
 
-    WHATSAPP
-    EMAIL
-    CALL
+   WHATSAPP
+   EMAIL
+   CALL
 */
 
 app.use(
@@ -395,34 +525,34 @@ app.use(
 ========================================================= */
 
 /*
-    WHATSAPP TEMPLATES
+   WHATSAPP TEMPLATES
 
-    GET:
-    /api/whatsapp/templates
+   GET:
+   /api/whatsapp/templates
 
-    GET:
-    /api/whatsapp/templates/:id
+   GET:
+   /api/whatsapp/templates/:id
 
-    POST:
-    /api/whatsapp/templates
+   POST:
+   /api/whatsapp/templates
 
-    PUT:
-    /api/whatsapp/templates/:id
+   PUT:
+   /api/whatsapp/templates/:id
 
-    DELETE:
-    /api/whatsapp/templates/:id
-
-
-    WHATSAPP ACTIVITY
-
-    POST:
-    /api/whatsapp/open
+   DELETE:
+   /api/whatsapp/templates/:id
 
 
-    WHATSAPP HISTORY
+   WHATSAPP ACTIVITY
 
-    GET:
-    /api/whatsapp/lead/:leadId
+   POST:
+   /api/whatsapp/open
+
+
+   WHATSAPP HISTORY
+
+   GET:
+   /api/whatsapp/lead/:leadId
 */
 
 app.use(
@@ -436,17 +566,17 @@ app.use(
 ========================================================= */
 
 /*
-    POST:
+   POST:
 
-    /api/email/send
+   /api/email/send
 
-    GET:
+   GET:
 
-    /api/email/lead/:leadId
+   /api/email/lead/:leadId
 
-    PUT:
+   PUT:
 
-    /api/email/status
+   /api/email/status
 */
 
 app.use(
@@ -460,25 +590,25 @@ app.use(
 ========================================================= */
 
 /*
-    GET:
+   GET:
 
-    /api/email-templates
+   /api/email-templates
 
-    GET:
+   GET:
 
-    /api/email-templates/:id
+   /api/email-templates/:id
 
-    POST:
+   POST:
 
-    /api/email-templates
+   /api/email-templates
 
-    PUT:
+   PUT:
 
-    /api/email-templates/:id
+   /api/email-templates/:id
 
-    DELETE:
+   DELETE:
 
-    /api/email-templates/:id
+   /api/email-templates/:id
 */
 
 app.use(
@@ -542,20 +672,20 @@ app.use(
 ========================================================= */
 
 /*
-    GET:
+   GET:
 
-    /api/profile
+   /api/profile
 
-    PUT:
+   PUT:
 
-    /api/profile
+   /api/profile
 
-    DELETE:
+   DELETE:
 
-    /api/profile/image
+   /api/profile/image
 
-    Authentication is handled inside
-    profileRoutes.js using protect middleware.
+   Authentication is handled inside
+   profileRoutes.js using protect middleware.
 */
 
 app.use(
@@ -593,7 +723,6 @@ app.get(
             return res.sendFile(
                 htmlFile
             );
-
         }
 
         next();
@@ -641,14 +770,19 @@ app.use(
         );
 
         console.log(
+            "ORIGIN:",
+            req.headers.origin || "No Origin"
+        );
+
+        console.log(
             "================================="
         );
 
 
         /*
-            Return JSON for API requests
-            so frontend response.json()
-            does not fail.
+           Return JSON for API requests
+           so frontend response.json()
+           does not fail.
         */
 
         if (
@@ -668,12 +802,11 @@ app.use(
                     req.originalUrl,
 
             });
-
         }
 
 
         /*
-            Normal page 404
+           Normal page 404
         */
 
         return res.status(404).send(
@@ -699,12 +832,42 @@ app.use(
             "❌ SERVER ERROR"
         );
 
-        console.error(err);
+        console.error(
+            err
+        );
 
         console.error(
             "================================="
         );
 
+
+        /*
+           Handle CORS errors
+        */
+
+        if (
+            err &&
+            err.message &&
+            err.message.toLowerCase().includes("cors")
+        ) {
+
+            return res.status(403).json({
+
+                success: false,
+
+                message:
+                    "CORS error: Origin is not allowed.",
+
+                origin:
+                    req.headers.origin || null,
+
+            });
+        }
+
+
+        /*
+           API error
+        */
 
         if (
             req.originalUrl.startsWith(
@@ -723,9 +886,12 @@ app.use(
                     "Internal server error",
 
             });
-
         }
 
+
+        /*
+           Normal error
+        */
 
         return res.status(
             err.status || 500
@@ -745,7 +911,6 @@ app.use(
 const PORT =
     process.env.PORT || 3000;
 
-
 app.listen(
     PORT,
     () => {
@@ -755,87 +920,20 @@ app.listen(
         );
 
         console.log(
-            `Server running on http://localhost:${PORT}`
+            `Server running on port ${PORT}`
         );
 
         console.log(
-            "Manager Leads API:"
+            "Allowed CORS origins:"
         );
 
-        console.log(
-            `http://localhost:${PORT}/api/manager/leads`
-        );
-
-        console.log(
-            "Finished Leads API:"
-        );
-
-        console.log(
-            `http://localhost:${PORT}/api/finished-leads`
-        );
-
-        console.log(
-            "Profile API:"
-        );
-
-        console.log(
-            `http://localhost:${PORT}/api/profile`
-        );
-
-        console.log(
-            "Analytics API:"
-        );
-
-        console.log(
-            `http://localhost:${PORT}/api/analytics`
-        );
-
-        console.log(
-            "Performance API:"
-        );
-
-        console.log(
-            `http://localhost:${PORT}/api/performance`
-        );
-
-        console.log(
-            "Communication API:"
-        );
-
-        console.log(
-            `http://localhost:${PORT}/api/communications`
-        );
-
-        console.log(
-            "WhatsApp API:"
-        );
-
-        console.log(
-            `http://localhost:${PORT}/api/whatsapp`
-        );
-
-        console.log(
-            "WhatsApp Templates:"
-        );
-
-        console.log(
-            `http://localhost:${PORT}/api/whatsapp/templates`
-        );
-
-        console.log(
-            "Email API:"
-        );
-
-        console.log(
-            `http://localhost:${PORT}/api/email`
-        );
-
-        console.log(
-            "Email Template API:"
-        );
-
-        console.log(
-            `http://localhost:${PORT}/api/email-templates`
+        allowedOrigins.forEach(
+            (origin) => {
+                console.log(
+                    "  ✅",
+                    origin
+                );
+            }
         );
 
         console.log(
