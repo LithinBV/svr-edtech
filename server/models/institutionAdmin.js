@@ -123,18 +123,25 @@ const institutionAdminSchema = new mongoose.Schema(
         },
 
         // ==========================================
-        // PERSISTENT LOGIN SESSION
+        // REFRESH TOKENS (MULTI-DEVICE SESSION SUPPORT)
         // ==========================================
 
-        refreshTokenHash: {
-            type: String,
-            default: null
-        },
-
-        refreshTokenExpiresAt: {
-            type: Date,
-            default: null
-        }
+        refreshTokens: [
+            {
+                hash: {
+                    type: String,
+                    required: true
+                },
+                expiresAt: {
+                    type: Date,
+                    required: true
+                },
+                createdAt: {
+                    type: Date,
+                    default: Date.now
+                }
+            }
+        ]
     },
 
     {

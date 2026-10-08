@@ -1,96 +1,164 @@
-const API_BASE =
-  import.meta.env.VITE_API_URL + "/api";
+const API_BASE = `${import.meta.env.VITE_API_URL}/api`;
 
-const getToken = () => {
-  return (
-    localStorage.getItem("accessToken") ||
-    localStorage.getItem("token") ||
-    ""
-  );
+/*
+|--------------------------------------------------------------------------
+| Get available tokens
+|--------------------------------------------------------------------------
+| We check "token" first because your emailApi.js already uses it.
+| If it doesn't exist, we fall back to accessToken.
+*/
+const getTokens = () => {
+  const tokens = [
+    localStorage.getItem("token"),
+    localStorage.getItem("accessToken"),
+  ].filter(Boolean);
+
+  return [...new Set(tokens)];
 };
 
-const getHeaders = () => {
-  const token = getToken();
-
+const getHeaders = (token) => {
   return {
     "Content-Type": "application/json",
     ...(token
-      ? { Authorization: `Bearer ${token}` }
+      ? {
+          Authorization: `Bearer ${token}`,
+        }
       : {}),
   };
 };
 
-// ============================================================
-// GET ALL ACTIVE EMAIL TEMPLATES
-// ============================================================
+const parseResponse = async (response) => {
+  const text = await response.text();
 
+  if (!text) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return {
+      message: text,
+    };
+  }
+};
+
+/*
+|--------------------------------------------------------------------------
+| GET ALL EMAIL TEMPLATES
+|--------------------------------------------------------------------------
+*/
 export const getEmailTemplates = async () => {
-  const response = await fetch(
-    `${API_BASE}/email-templates`,
-    {
+  const tokens = getTokens();
+
+  let lastResponse = null;
+  let lastData = null;
+
+  /*
+  | If token exists, try each available token.
+  | This helps if one stored token is expired.
+  */
+  const tokensToTry = tokens.length > 0 ? tokens : [""];
+
+  for (const token of tokensToTry) {
+    const response = await fetch(`${API_BASE}/email-templates`, {
       method: "GET",
-      headers: getHeaders(),
+      headers: getHeaders(token),
+    });
+
+    const data = await parseResponse(response);
+
+    lastResponse = response;
+    lastData = data;
+
+    if (response.ok) {
+      return data;
     }
-  );
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(
-      data?.message ||
-        "Failed to fetch email templates"
-    );
+    /*
+    | Only retry with another token for authentication failure.
+    */
+    if (response.status !== 401) {
+      break;
+    }
   }
 
-  return data;
+  throw new Error(
+    lastData?.message ||
+      lastData?.error ||
+      `Failed to fetch email templates (${lastResponse?.status || 500})`
+  );
 };
 
-// ============================================================
-// GET ONE EMAIL TEMPLATE
-// ============================================================
-
+/*
+|--------------------------------------------------------------------------
+| GET TEMPLATE BY ID
+|--------------------------------------------------------------------------
+*/
 export const getEmailTemplateById = async (id) => {
-  const response = await fetch(
-    `${API_BASE}/email-templates/${id}`,
-    {
-      method: "GET",
-      headers: getHeaders(),
-    }
-  );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(
-      data?.message ||
-        "Failed to fetch email template"
-    );
+  if (!id) {
+    throw new Error("Template ID is required");
   }
 
-  return data;
+  const tokens = getTokens();
+  const tokensToTry = tokens.length > 0 ? tokens : [""];
+
+  let lastResponse = null;
+  let lastData = null;
+
+  for (const token of tokensToTry) {
+    const response = await fetch(
+      `${API_BASE}/email-templates/${id}`,
+      {
+        method: "GET",
+        headers: getHeaders(token),
+      }
+    );
+
+    const data = await parseResponse(response);
+
+    lastResponse = response;
+    lastData = data;
+
+    if (response.ok) {
+      return data;
+    }
+
+    if (response.status !== 401) {
+      break;
+    }
+  }
+
+  throw new Error(
+    lastData?.message ||
+      lastData?.error ||
+      `Failed to fetch email template (${lastResponse?.status || 500})`
+  );
 };
 
-// ============================================================
-// CREATE EMAIL TEMPLATE
-// ============================================================
+/*
+|--------------------------------------------------------------------------
+| CREATE TEMPLATE
+|--------------------------------------------------------------------------
+*/
+export const createEmailTemplate = async (templateData) => {
+  const token =
+    localStorage.getItem("token") ||
+    localStorage.getItem("accessToken") ||
+    "";
 
-export const createEmailTemplate = async (
-  templateData
-) => {
-  const response = await fetch(
-    `${API_BASE}/email-templates`,
-    {
-      method: "POST",
-      headers: getHeaders(),
-      body: JSON.stringify(templateData),
-    }
-  );
+  const response = await fetch(`${API_BASE}/email-templates`, {
+    method: "POST",
+    headers: getHeaders(token),
+    body: JSON.stringify(templateData),
+  });
 
-  const data = await response.json();
+  const data = await parseResponse(response);
 
   if (!response.ok) {
     throw new Error(
       data?.message ||
+        data?.error ||
         "Failed to create email template"
     );
   }
@@ -98,28 +166,36 @@ export const createEmailTemplate = async (
   return data;
 };
 
-// ============================================================
-// UPDATE EMAIL TEMPLATE
-// ============================================================
+/*
+|--------------------------------------------------------------------------
+| UPDATE TEMPLATE
+|--------------------------------------------------------------------------
+*/
+export const updateEmailTemplate = async (id, templateData) => {
+  if (!id) {
+    throw new Error("Template ID is required");
+  }
 
-export const updateEmailTemplate = async (
-  id,
-  templateData
-) => {
+  const token =
+    localStorage.getItem("token") ||
+    localStorage.getItem("accessToken") ||
+    "";
+
   const response = await fetch(
     `${API_BASE}/email-templates/${id}`,
     {
       method: "PUT",
-      headers: getHeaders(),
+      headers: getHeaders(token),
       body: JSON.stringify(templateData),
     }
   );
 
-  const data = await response.json();
+  const data = await parseResponse(response);
 
   if (!response.ok) {
     throw new Error(
       data?.message ||
+        data?.error ||
         "Failed to update email template"
     );
   }
@@ -127,24 +203,35 @@ export const updateEmailTemplate = async (
   return data;
 };
 
-// ============================================================
-// DELETE EMAIL TEMPLATE
-// ============================================================
-
+/*
+|--------------------------------------------------------------------------
+| DELETE TEMPLATE
+|--------------------------------------------------------------------------
+*/
 export const deleteEmailTemplate = async (id) => {
+  if (!id) {
+    throw new Error("Template ID is required");
+  }
+
+  const token =
+    localStorage.getItem("token") ||
+    localStorage.getItem("accessToken") ||
+    "";
+
   const response = await fetch(
     `${API_BASE}/email-templates/${id}`,
     {
       method: "DELETE",
-      headers: getHeaders(),
+      headers: getHeaders(token),
     }
   );
 
-  const data = await response.json();
+  const data = await parseResponse(response);
 
   if (!response.ok) {
     throw new Error(
       data?.message ||
+        data?.error ||
         "Failed to delete email template"
     );
   }

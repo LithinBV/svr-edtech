@@ -2,63 +2,75 @@ const mongoose = require("mongoose");
 
 const whatsappTemplateSchema = new mongoose.Schema(
   {
-    // Template name shown in SVR-EDTECH
+    // =====================================================
+    // TEMPLATE NAME
+    // =====================================================
     name: {
       type: String,
       required: true,
       trim: true,
-      unique: true,
     },
 
-    // Optional description
+    // =====================================================
+    // DESCRIPTION
+    // =====================================================
     description: {
       type: String,
-      trim: true,
       default: "",
+      trim: true,
     },
 
-    // Actual message
-    //
-    // Example:
-    // Hi {{name}}, this is {{executive}} from SVR-EDTECH.
-    //
+    // =====================================================
+    // TEMPLATE MESSAGE
+    // =====================================================
     message: {
       type: String,
       required: true,
       trim: true,
     },
 
-    // Template category
+    // =====================================================
+    // TEMPLATE CATEGORY / LEAD STATUS
+    // =====================================================
     category: {
       type: String,
-      enum: [
-        "WELCOME",
-        "FOLLOW_UP",
-        "COURSE",
-        "PAYMENT",
-        "DEMO",
-        "REMINDER",
-        "GENERAL",
-      ],
+      required: true,
       default: "GENERAL",
-      index: true,
+      trim: true,
+      uppercase: true,
     },
 
-    // Whether the template is available
+    // =====================================================
+    // WHATSAPP PROVIDER TEMPLATE NAME
+    // =====================================================
+    // Keep this because you may use WhatsApp Business API
+    // in the future.
+    providerTemplateName: {
+      type: String,
+      default: null,
+      trim: true,
+    },
+
+    // =====================================================
+    // ACTIVE / INACTIVE
+    // =====================================================
     isActive: {
       type: Boolean,
       default: true,
-      index: true,
     },
 
-    // User who created the template
+    // =====================================================
+    // CREATED BY
+    // =====================================================
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null,
     },
 
-    // User who last updated it
+    // =====================================================
+    // UPDATED BY
+    // =====================================================
     updatedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -70,13 +82,28 @@ const whatsappTemplateSchema = new mongoose.Schema(
   }
 );
 
-// Fast lookup for active templates
+
+// =====================================================
+// INDEXES
+// =====================================================
+
 whatsappTemplateSchema.index({
-  isActive: 1,
   category: 1,
+  name: 1,
 });
 
-module.exports = mongoose.model(
+whatsappTemplateSchema.index({
+  isActive: 1,
+});
+
+
+// =====================================================
+// MODEL
+// =====================================================
+
+const WhatsAppTemplate = mongoose.model(
   "WhatsAppTemplate",
   whatsappTemplateSchema
 );
+
+module.exports = WhatsAppTemplate;

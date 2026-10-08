@@ -43,6 +43,7 @@ const managerLeadRoutes = require("./routes/managerLeadRoutes");
 const performanceRoutes = require("./routes/performanceRoutes");
 
 const profileRoutes = require("./routes/profileRoutes");
+const whatsappTemplateRoutes = require("./routes/whatsappTemplateRoutes");
 
 /* =========================================================
    APP
@@ -304,6 +305,15 @@ app.use(
 app.use(
     "/api/whatsapp",
     whatsappRoutes
+);
+
+/* =========================================================
+   WHATSAPP TEMPLATE API
+========================================================= */
+
+app.use(
+    "/api/whatsapp-templates",
+    whatsappTemplateRoutes
 );
 
 /* =========================================================

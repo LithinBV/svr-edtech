@@ -23,7 +23,7 @@
 // =====================================================
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL + "/api";
+    import.meta.env.VITE_API_URL + "/api";
 
 
 // =====================================================
@@ -56,7 +56,6 @@ const request = async (
 
     const headers = {
         "Content-Type": "application/json",
-
         ...(options.headers || {}),
     };
 
@@ -79,9 +78,7 @@ const request = async (
         `${API_BASE_URL}${endpoint}`,
         {
             ...options,
-
             credentials: "include",
-
             headers,
         }
     );
@@ -122,6 +119,7 @@ const request = async (
             data?.message ||
             "Access denied. Please login."
         );
+
     }
 
 
@@ -135,6 +133,7 @@ const request = async (
             data?.message ||
             `Request failed with status ${response.status}`
         );
+
     }
 
 
@@ -150,7 +149,7 @@ const request = async (
 // GET ALL WHATSAPP TEMPLATES
 // =====================================================
 //
-// GET /api/whatsapp/templates
+// GET /api/whatsapp-templates
 //
 // Returns active templates.
 // =====================================================
@@ -158,7 +157,7 @@ const request = async (
 export const getWhatsAppTemplates = async () => {
 
     return await request(
-        "/whatsapp/templates",
+        "/whatsapp-templates",
         {
             method: "GET",
         }
@@ -171,7 +170,7 @@ export const getWhatsAppTemplates = async () => {
 // GET ONE WHATSAPP TEMPLATE
 // =====================================================
 //
-// GET /api/whatsapp/templates/:id
+// GET /api/whatsapp-templates/:id
 // =====================================================
 
 export const getWhatsAppTemplate = async (
@@ -188,7 +187,7 @@ export const getWhatsAppTemplate = async (
 
 
     return await request(
-        `/whatsapp/templates/${templateId}`,
+        `/whatsapp-templates/${templateId}`,
         {
             method: "GET",
         }
@@ -201,7 +200,7 @@ export const getWhatsAppTemplate = async (
 // CREATE WHATSAPP TEMPLATE
 // =====================================================
 //
-// POST /api/whatsapp/templates
+// POST /api/whatsapp-templates
 //
 // Example:
 //
@@ -227,7 +226,7 @@ export const createWhatsAppTemplate = async (
 
 
     return await request(
-        "/whatsapp/templates",
+        "/whatsapp-templates",
         {
             method: "POST",
 
@@ -244,7 +243,7 @@ export const createWhatsAppTemplate = async (
 // UPDATE WHATSAPP TEMPLATE
 // =====================================================
 //
-// PUT /api/whatsapp/templates/:id
+// PUT /api/whatsapp-templates/:id
 // =====================================================
 
 export const updateWhatsAppTemplate = async (
@@ -271,7 +270,7 @@ export const updateWhatsAppTemplate = async (
 
 
     return await request(
-        `/whatsapp/templates/${templateId}`,
+        `/whatsapp-templates/${templateId}`,
         {
             method: "PUT",
 
@@ -288,7 +287,7 @@ export const updateWhatsAppTemplate = async (
 // DELETE WHATSAPP TEMPLATE
 // =====================================================
 //
-// DELETE /api/whatsapp/templates/:id
+// DELETE /api/whatsapp-templates/:id
 //
 // Backend performs a soft delete/deactivation.
 // =====================================================
@@ -307,7 +306,7 @@ export const deleteWhatsAppTemplate = async (
 
 
     return await request(
-        `/whatsapp/templates/${templateId}`,
+        `/whatsapp-templates/${templateId}`,
         {
             method: "DELETE",
         }
@@ -416,9 +415,7 @@ export const replaceWhatsAppVariables = (
 ) => {
 
     if (!message) {
-
         return "";
-
     }
 
 
@@ -432,7 +429,6 @@ export const replaceWhatsAppVariables = (
             data.name ||
             data.leadName ||
             "",
-
 
         leadName:
             data.leadName ||
@@ -449,7 +445,6 @@ export const replaceWhatsAppVariables = (
             data.email ||
             "",
 
-
         email:
             data.email ||
             data.leadEmail ||
@@ -464,7 +459,6 @@ export const replaceWhatsAppVariables = (
             data.phone ||
             data.phoneNumber ||
             "",
-
 
         phoneNumber:
             data.phoneNumber ||
@@ -481,7 +475,6 @@ export const replaceWhatsAppVariables = (
             data.courseName ||
             "",
 
-
         courseName:
             data.courseName ||
             data.course ||
@@ -497,7 +490,6 @@ export const replaceWhatsAppVariables = (
             data.agentName ||
             "",
 
-
         agentName:
             data.agentName ||
             data.executive ||
@@ -512,7 +504,6 @@ export const replaceWhatsAppVariables = (
             data.company ||
             data.companyName ||
             "SVR-EDTECH",
-
 
         companyName:
             data.companyName ||
@@ -773,6 +764,7 @@ export const openWhatsApp = (
 // IMPORTANT:
 //
 // Backend activity means OPENED/PREPARED.
+//
 // It does NOT mean WhatsApp SEND was pressed.
 // =====================================================
 
@@ -897,6 +889,7 @@ export const prepareAndOpenWhatsApp = async ({
             error
         );
 
+
         // ---------------------------------------------
         // IMPORTANT
         // ---------------------------------------------
@@ -910,6 +903,7 @@ export const prepareAndOpenWhatsApp = async ({
         // ---------------------------------------------
 
         throw error;
+
     }
 
 

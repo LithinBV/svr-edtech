@@ -12,23 +12,69 @@ const {
   deleteTemplate,
 } = require("../controllers/whatsappTemplateController");
 
+
 // =====================================================
-// WHATSAPP TEMPLATE ROUTES
+// GET ALL WHATSAPP TEMPLATES
+// GET /api/whatsapp-templates
 // =====================================================
 
-// Get all active templates
-router.get("/", protect, getTemplates);
+router.get(
+  "/",
+  protect,
+  getTemplates
+);
 
-// Get single template
-router.get("/:id", protect, getTemplateById);
 
-// Create template
-router.post("/", protect, createTemplate);
+// =====================================================
+// GET SINGLE WHATSAPP TEMPLATE
+// GET /api/whatsapp-templates/:id
+// =====================================================
 
-// Update template
-router.put("/:id", protect, updateTemplate);
+router.get(
+  "/:id",
+  protect,
+  getTemplateById
+);
 
-// Deactivate template
-router.delete("/:id", protect, deleteTemplate);
+
+// =====================================================
+// CREATE WHATSAPP TEMPLATE
+// POST /api/whatsapp-templates
+// =====================================================
+
+router.post(
+  "/",
+  protect,
+  createTemplate
+);
+
+
+// =====================================================
+// UPDATE WHATSAPP TEMPLATE
+// PUT /api/whatsapp-templates/:id
+// =====================================================
+
+router.put(
+  "/:id",
+  protect,
+  updateTemplate
+);
+
+
+// =====================================================
+// DELETE / DEACTIVATE WHATSAPP TEMPLATE
+// DELETE /api/whatsapp-templates/:id
+// =====================================================
+
+router.delete(
+  "/:id",
+  protect,
+  deleteTemplate
+);
+
+
+// =====================================================
+// EXPORT
+// =====================================================
 
 module.exports = router;

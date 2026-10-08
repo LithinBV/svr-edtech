@@ -113,6 +113,8 @@ const createTemplate = async (req, res) => {
       });
     }
 
+    const userId = req.user?.userId || null;
+
     const template = await WhatsAppTemplate.create({
       name: name.trim(),
       description: description?.trim() || "",
@@ -121,8 +123,8 @@ const createTemplate = async (req, res) => {
         providerTemplateName?.trim() || null,
       category: category || "GENERAL",
       isActive: true,
-      createdBy: req.user?._id || null,
-      updatedBy: req.user?._id || null,
+      createdBy: userId,
+      updatedBy: userId,
     });
 
     return res.status(201).json({
@@ -167,6 +169,9 @@ const updateTemplate = async (req, res) => {
       });
     }
 
+    // ---------------------------------------------
+    // NAME
+    // ---------------------------------------------
     if (name !== undefined) {
       const trimmedName = name.trim();
 
@@ -192,10 +197,16 @@ const updateTemplate = async (req, res) => {
       template.name = trimmedName;
     }
 
+    // ---------------------------------------------
+    // DESCRIPTION
+    // ---------------------------------------------
     if (description !== undefined) {
       template.description = description.trim();
     }
 
+    // ---------------------------------------------
+    // MESSAGE
+    // ---------------------------------------------
     if (message !== undefined) {
       if (!message.trim()) {
         return res.status(400).json({
@@ -207,20 +218,32 @@ const updateTemplate = async (req, res) => {
       template.message = message.trim();
     }
 
+    // ---------------------------------------------
+    // PROVIDER TEMPLATE NAME
+    // ---------------------------------------------
     if (providerTemplateName !== undefined) {
       template.providerTemplateName =
         providerTemplateName?.trim() || null;
     }
 
+    // ---------------------------------------------
+    // CATEGORY
+    // ---------------------------------------------
     if (category !== undefined) {
       template.category = category;
     }
 
+    // ---------------------------------------------
+    // ACTIVE STATUS
+    // ---------------------------------------------
     if (isActive !== undefined) {
       template.isActive = Boolean(isActive);
     }
 
-    template.updatedBy = req.user?._id || null;
+    // ---------------------------------------------
+    // UPDATED BY
+    // ---------------------------------------------
+    template.updatedBy = req.user?.userId || null;
 
     await template.save();
 
@@ -259,7 +282,7 @@ const deleteTemplate = async (req, res) => {
 
     // Soft delete
     template.isActive = false;
-    template.updatedBy = req.user?._id || null;
+    template.updatedBy = req.user?.userId || null;
 
     await template.save();
 
@@ -279,6 +302,9 @@ const deleteTemplate = async (req, res) => {
 };
 
 
+// =====================================================
+// EXPORT
+// =====================================================
 module.exports = {
   getTemplates,
   getTemplateById,

@@ -5,8 +5,6 @@ import {
   ExternalLink,
   Loader2,
   MessageCircle,
-  User,
-  Phone,
   History,
   AlertCircle,
   CheckCircle2,
@@ -19,7 +17,6 @@ import {
 
 import WhatsAppTemplateList from "./WhatsAppTemplates";
 import WhatsAppMessagePreview from "./WhatsAppMessagePreview";
-import WhatsAppLeadInfo from "./WhatsAppLeadInfo";
 
 const WhatsAppComposer = ({
   isOpen,
@@ -56,6 +53,13 @@ const WhatsAppComposer = ({
   // =====================================================
   // GET LEAD INFORMATION
   // =====================================================
+
+  // Keep this data because it is still required for:
+  // 1. Template variable replacement
+  // 2. WhatsApp message preparation
+  // 3. Sending lead information to backend
+  //
+  // We are only removing the LEAD INFORMATION UI.
 
   const leadData = useMemo(() => {
     return {
@@ -459,6 +463,7 @@ const WhatsAppComposer = ({
           sm:rounded-3xl
         "
       >
+
         {/* =================================================
             HEADER
         ================================================= */}
@@ -585,94 +590,6 @@ const WhatsAppComposer = ({
         </div>
 
         {/* =================================================
-            LEAD INFORMATION
-        ================================================= */}
-
-        <div
-          className="
-            shrink-0
-            border-b border-gray-100
-            bg-gray-50
-            px-4 py-3
-            sm:px-6
-          "
-        >
-          <div
-            className="
-              flex items-center
-              justify-between
-              gap-4
-            "
-          >
-            <div
-              className="
-                flex min-w-0
-                items-center gap-3
-              "
-            >
-              <div
-                className="
-                  flex h-10 w-10
-                  shrink-0
-                  items-center justify-center
-                  rounded-full
-                  bg-[#102236]
-                  text-white
-                "
-              >
-                <User size={18} />
-              </div>
-
-              <div className="min-w-0">
-                <p
-                  className="
-                    truncate
-                    text-sm
-                    font-semibold
-                    text-gray-900
-                  "
-                >
-                  {leadData?.name ||
-                    "Lead"}
-                </p>
-
-                <div
-                  className="
-                    mt-0.5
-                    flex items-center
-                    gap-1.5
-                    text-xs
-                    text-gray-500
-                  "
-                >
-                  <Phone size={12} />
-
-                  <span>
-                    {leadData?.phone ||
-                      "No phone number"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="hidden sm:block">
-              <span
-                className="
-                  rounded-full
-                  bg-emerald-50
-                  px-3 py-1.5
-                  text-xs
-                  font-semibold
-                  text-emerald-600
-                "
-              >
-                WhatsApp
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* =================================================
             BODY
         ================================================= */}
 
@@ -689,7 +606,7 @@ const WhatsAppComposer = ({
               h-full
               min-h-0
               grid-cols-1
-              lg:grid-cols-[280px_minmax(0,1fr)_320px]
+              lg:grid-cols-[40%_60%]
             "
           >
 
@@ -701,36 +618,45 @@ const WhatsAppComposer = ({
               className="
                 hidden
                 min-h-0
+                overflow-y-auto
                 border-r
                 border-gray-100
+                bg-white
                 p-5
                 lg:block
+                lg:p-6
               "
             >
-              <WhatsAppTemplateList
-                templates={templates}
-                selectedTemplate={
-                  selectedTemplate
-                }
-                onSelect={
-                  handleTemplateSelect
-                }
-                loading={
-                  loadingTemplates
-                }
-              />
+              <div className="h-full">
+
+                <WhatsAppTemplateList
+                  templates={templates}
+                  selectedTemplate={
+                    selectedTemplate
+                  }
+                  onSelect={
+                    handleTemplateSelect
+                  }
+                  loading={
+                    loadingTemplates
+                  }
+                />
+
+              </div>
             </div>
 
             {/* =================================================
-                CENTER — MESSAGE
+                RIGHT — MESSAGE
             ================================================= */}
 
             <div
               className="
                 min-h-0
                 overflow-y-auto
+                bg-[#F9FAFB]
                 p-4
                 sm:p-6
+                lg:p-7
               "
             >
 
@@ -751,7 +677,9 @@ const WhatsAppComposer = ({
                 />
               </div>
 
-              {/* Error */}
+              {/* =================================================
+                  ERROR
+              ================================================= */}
 
               {error && (
                 <div
@@ -779,7 +707,9 @@ const WhatsAppComposer = ({
                 </div>
               )}
 
-              {/* Success */}
+              {/* =================================================
+                  SUCCESS
+              ================================================= */}
 
               {success && (
                 <div
@@ -809,49 +739,31 @@ const WhatsAppComposer = ({
 
               {/* =================================================
                   MESSAGE PREVIEW
-
-                  IMPORTANT FIX:
-                  Pass leadName and phoneNumber.
               ================================================= */}
 
-              <WhatsAppMessagePreview
-                template={selectedTemplate}
-                message={message}
-                onMessageChange={setMessage}
-                leadName={
-                  leadData?.name ||
-                  leadName ||
-                  "Lead"
-                }
-                phoneNumber={
-                  leadData?.phone ||
-                  phoneNumber ||
-                  ""
-                }
-              />
+              <div
+                className="
+                  h-full
+                  min-h-[400px]
+                "
+              >
+                <WhatsAppMessagePreview
+                  template={selectedTemplate}
+                  message={message}
+                  onMessageChange={setMessage}
+                  leadName={
+                    leadData?.name ||
+                    leadName ||
+                    "Lead"
+                  }
+                  phoneNumber={
+                    leadData?.phone ||
+                    phoneNumber ||
+                    ""
+                  }
+                />
+              </div>
 
-            </div>
-
-            {/* =================================================
-                RIGHT — LEAD INFO
-            ================================================= */}
-
-            <div
-              className="
-                hidden
-                min-h-0
-                overflow-y-auto
-                border-l
-                border-gray-100
-                bg-gray-50/50
-                p-5
-                lg:block
-              "
-            >
-              <WhatsAppLeadInfo
-                lead={leadData}
-                agent={agent}
-              />
             </div>
 
           </div>
@@ -955,6 +867,7 @@ const WhatsAppComposer = ({
           </button>
 
         </div>
+
       </div>
     </div>
   );

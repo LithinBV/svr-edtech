@@ -148,18 +148,25 @@ const userSchema = new mongoose.Schema(
         },
 
         // ======================================================
-        // REFRESH TOKEN
+        // REFRESH TOKENS (MULTI-DEVICE SESSION SUPPORT)
         // ======================================================
 
-        refreshTokenHash: {
-            type: String,
-            default: null
-        },
-
-        refreshTokenExpiresAt: {
-            type: Date,
-            default: null
-        }
+        refreshTokens: [
+            {
+                hash: {
+                    type: String,
+                    required: true
+                },
+                expiresAt: {
+                    type: Date,
+                    required: true
+                },
+                createdAt: {
+                    type: Date,
+                    default: Date.now
+                }
+            }
+        ]
     },
 
     {

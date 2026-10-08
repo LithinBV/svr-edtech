@@ -700,7 +700,7 @@ const verifyOTP = async (req, res) => {
 
 
         // ------------------------------------------
-        // REFRESH TOKEN
+        // REFRESH TOKEN (ADDS TO SESSIONS ARRAY)
         // ------------------------------------------
 
         const refreshToken =
@@ -744,7 +744,7 @@ const verifyOTP = async (req, res) => {
 
 
 // ==================================================
-// REFRESH ACCESS TOKEN
+// REFRESH ACCESS TOKEN (MULTI-SESSION SAFE)
 // ==================================================
 
 const refreshToken = async (req, res) => {
@@ -772,64 +772,48 @@ const refreshToken = async (req, res) => {
 
 
         // ------------------------------------------
-        // FIND ACCOUNT
+        // FIND ACCOUNT CONTAINING THIS TOKEN
         // ------------------------------------------
+
+        const tokenQuery = {
+            "refreshTokens.hash": submittedHash
+        };
 
         let accountData = null;
 
-
         const superAdmin =
-            await SuperAdmin.findOne({
-                refreshTokenHash:
-                    submittedHash
-            });
+            await SuperAdmin.findOne(tokenQuery);
 
         if (superAdmin) {
-
             accountData = {
                 user: superAdmin,
                 userType: "SUPER_ADMIN"
             };
         }
 
-
         if (!accountData) {
-
             const institutionAdmin =
-                await InstitutionAdmin.findOne({
-                    refreshTokenHash:
-                        submittedHash
-                });
+                await InstitutionAdmin.findOne(tokenQuery);
 
             if (institutionAdmin) {
-
                 accountData = {
                     user: institutionAdmin,
-                    userType:
-                        "INSTITUTION_ADMIN"
+                    userType: "INSTITUTION_ADMIN"
                 };
             }
         }
-
 
         if (!accountData) {
-
             const normalUser =
-                await User.findOne({
-                    refreshTokenHash:
-                        submittedHash
-                });
+                await User.findOne(tokenQuery);
 
             if (normalUser) {
-
                 accountData = {
                     user: normalUser,
-                    userType:
-                        normalUser.role
+                    userType: normalUser.role
                 };
             }
         }
-
 
         if (!accountData) {
 
@@ -858,9 +842,10 @@ const refreshToken = async (req, res) => {
 
             if (user.status !== "ACTIVE") {
 
-                user.refreshTokenHash = null;
-                user.refreshTokenExpiresAt = null;
-
+                // Remove this session on inactive status
+                user.refreshTokens = user.refreshTokens.filter(
+                    (s) => s.hash !== submittedHash
+                );
                 await user.save();
 
                 return res.status(403).json({
@@ -873,18 +858,23 @@ const refreshToken = async (req, res) => {
 
 
         // ------------------------------------------
-        // EXPIRY
+        // EXPIRY CHECK FOR THIS SESSION
         // ------------------------------------------
 
+        const matchedSession = user.refreshTokens.find(
+            (s) => s.hash === submittedHash
+        );
+
         if (
-            !user.refreshTokenExpiresAt ||
-            new Date() >
-            user.refreshTokenExpiresAt
+            !matchedSession ||
+            !matchedSession.expiresAt ||
+            new Date() > matchedSession.expiresAt
         ) {
 
-            user.refreshTokenHash = null;
-            user.refreshTokenExpiresAt = null;
-
+            // Remove expired token
+            user.refreshTokens = user.refreshTokens.filter(
+                (s) => s.hash !== submittedHash
+            );
             await user.save();
 
             return res.status(401).json({
@@ -895,31 +885,13 @@ const refreshToken = async (req, res) => {
         }
 
 
-        // ==================================================
-        // IMPORTANT ACTIVITY RULE
-        // ==================================================
-        //
-        // DO NOT update lastActivityAt here.
-        //
-        // Refreshing an access token is NOT the same
-        // as the user actively working.
-        //
-        // The frontend activity tracker is responsible
-        // for updating lastActivityAt.
-        //
-        // This allows:
-        //
-        // 30 minutes no activity
-        //        ↓
-        // INACTIVE
-        //
-        // even if the refresh token is still valid.
-        // ==================================================
-
-
         // ------------------------------------------
-        // ROTATE REFRESH TOKEN
+        // ROTATE: REMOVE OLD TOKEN & ISSUE NEW ONE
         // ------------------------------------------
+
+        user.refreshTokens = user.refreshTokens.filter(
+            (s) => s.hash !== submittedHash
+        );
 
         const newRefreshToken =
             await createRefreshToken(
@@ -979,7 +951,7 @@ const refreshToken = async (req, res) => {
 
 
 // ==================================================
-// LOGOUT
+// LOGOUT (DEVICE-SPECIFIC LOGOUT)
 // ==================================================
 
 const logout = async (req, res) => {
@@ -991,15 +963,6 @@ const logout = async (req, res) => {
                 submittedRefreshToken
         } = req.body;
 
-
-        // ==================================================
-        // NO REFRESH TOKEN
-        // ==================================================
-        //
-        // Nothing to invalidate if the refresh token
-        // is already gone.
-        // ==================================================
-
         if (!submittedRefreshToken) {
 
             return res.json({
@@ -1009,60 +972,41 @@ const logout = async (req, res) => {
             });
         }
 
-
         const submittedHash =
             hashRefreshToken(
                 submittedRefreshToken
             );
 
+        const tokenQuery = {
+            "refreshTokens.hash": submittedHash
+        };
+
 
         // ------------------------------------------
-        // FIND ACCOUNT
+        // FIND ACCOUNT & REMOVE SPECIFIC SESSION
         // ------------------------------------------
 
         let user =
-            await SuperAdmin.findOne({
-                refreshTokenHash:
-                    submittedHash
-            });
-
+            await SuperAdmin.findOne(tokenQuery);
 
         if (!user) {
-
             user =
-                await InstitutionAdmin.findOne({
-                    refreshTokenHash:
-                        submittedHash
-                });
+                await InstitutionAdmin.findOne(tokenQuery);
         }
-
 
         if (!user) {
-
             user =
-                await User.findOne({
-                    refreshTokenHash:
-                        submittedHash
-                });
+                await User.findOne(tokenQuery);
         }
-
-
-        // ------------------------------------------
-        // CLEAR SESSION + ACTIVITY
-        // ------------------------------------------
 
         if (user) {
 
-            user.refreshTokenHash = null;
+            // Only remove the current device's refresh token
+            user.refreshTokens = user.refreshTokens.filter(
+                (s) => s.hash !== submittedHash
+            );
 
-            user.refreshTokenExpiresAt = null;
-
-            // IMPORTANT:
-            // Clear application activity immediately
-            // when the user logs out.
-            //
-            // This does NOT change the account status.
-
+            // Clear activity tracker for this device
             user.lastActivityAt = null;
 
             await user.save();
@@ -1070,9 +1014,7 @@ const logout = async (req, res) => {
 
 
         return res.json({
-
             success: true,
-
             message:
                 "Logged out successfully."
         });
@@ -1085,9 +1027,7 @@ const logout = async (req, res) => {
         );
 
         return res.status(500).json({
-
             success: false,
-
             message:
                 "Server error"
         });
@@ -1124,11 +1064,6 @@ const forgotPassword = async (req, res) => {
                 normalizedEmail
             );
 
-
-        // ------------------------------------------
-        // DON'T REVEAL ACCOUNT EXISTENCE
-        // ------------------------------------------
-
         if (!accountData) {
 
             return res.json({
@@ -1138,16 +1073,10 @@ const forgotPassword = async (req, res) => {
             });
         }
 
-
         const {
             user,
             userType
         } = accountData;
-
-
-        // ------------------------------------------
-        // ACTIVE CHECK
-        // ------------------------------------------
 
         if (
             userType === "MANAGER" ||
@@ -1164,11 +1093,6 @@ const forgotPassword = async (req, res) => {
             }
         }
 
-
-        // ------------------------------------------
-        // GENERATE RESET OTP
-        // ------------------------------------------
-
         const otp =
             generateOTP();
 
@@ -1183,7 +1107,6 @@ const forgotPassword = async (req, res) => {
                 1000
             );
 
-
         user.resetOtpHash =
             otpHash;
 
@@ -1193,13 +1116,7 @@ const forgotPassword = async (req, res) => {
         user.resetOtpAttempts =
             0;
 
-
         await user.save();
-
-
-        // ------------------------------------------
-        // SEND RESET OTP
-        // ------------------------------------------
 
         try {
 
@@ -1218,7 +1135,6 @@ const forgotPassword = async (req, res) => {
 
             throw emailError;
         }
-
 
         return res.json({
             success: true,
@@ -1258,11 +1174,6 @@ const resetPassword = async (req, res) => {
             newPassword
         } = req.body;
 
-
-        // ------------------------------------------
-        // VALIDATION
-        // ------------------------------------------
-
         if (
             !email ||
             !otp ||
@@ -1275,11 +1186,6 @@ const resetPassword = async (req, res) => {
                     "Email, OTP and new password are required"
             });
         }
-
-
-        // ------------------------------------------
-        // PASSWORD VALIDATION
-        // ------------------------------------------
 
         if (
             !isValidPassword(
@@ -1294,14 +1200,8 @@ const resetPassword = async (req, res) => {
             });
         }
 
-
         const normalizedEmail =
             email.trim().toLowerCase();
-
-
-        // ------------------------------------------
-        // FIND ACCOUNT
-        // ------------------------------------------
 
         const accountData =
             await findAccountByEmail(
@@ -1317,15 +1217,9 @@ const resetPassword = async (req, res) => {
             });
         }
 
-
         const {
             user
         } = accountData;
-
-
-        // ------------------------------------------
-        // RESET OTP EXISTS
-        // ------------------------------------------
 
         if (
             !user.resetOtpHash ||
@@ -1338,11 +1232,6 @@ const resetPassword = async (req, res) => {
                     "Reset OTP not found. Please request a new OTP."
             });
         }
-
-
-        // ------------------------------------------
-        // CHECK EXPIRY
-        // ------------------------------------------
 
         if (
             new Date() >
@@ -1362,11 +1251,6 @@ const resetPassword = async (req, res) => {
             });
         }
 
-
-        // ------------------------------------------
-        // CHECK ATTEMPTS
-        // ------------------------------------------
-
         if (
             user.resetOtpAttempts >=
             RESET_OTP_MAX_ATTEMPTS
@@ -1384,11 +1268,6 @@ const resetPassword = async (req, res) => {
                     "Too many incorrect attempts. Please request a new OTP."
             });
         }
-
-
-        // ------------------------------------------
-        // COMPARE OTP
-        // ------------------------------------------
 
         const submittedHash =
             hashOTP(otp);
@@ -1416,11 +1295,6 @@ const resetPassword = async (req, res) => {
             });
         }
 
-
-        // ------------------------------------------
-        // HASH NEW PASSWORD
-        // ------------------------------------------
-
         const hashedPassword =
             await bcrypt.hash(
                 newPassword,
@@ -1430,35 +1304,19 @@ const resetPassword = async (req, res) => {
         user.password =
             hashedPassword;
 
-
-        // ------------------------------------------
-        // CLEAR RESET OTP
-        // ------------------------------------------
-
+        // Clear reset and login OTPs
         user.resetOtpHash = null;
         user.resetOtpExpiresAt = null;
         user.resetOtpAttempts = 0;
-
-
-        // ------------------------------------------
-        // INVALIDATE LOGIN OTP
-        // ------------------------------------------
 
         user.otpHash = null;
         user.otpExpiresAt = null;
         user.otpAttempts = 0;
 
-
-        // ------------------------------------------
-        // INVALIDATE SESSION
-        // ------------------------------------------
-
-        user.refreshTokenHash = null;
-        user.refreshTokenExpiresAt = null;
-
+        // Invalidate all active sessions across all devices for security
+        user.refreshTokens = [];
 
         await user.save();
-
 
         return res.json({
             success: true,
@@ -1487,20 +1345,12 @@ const resetPassword = async (req, res) => {
 // ==================================================
 
 module.exports = {
-
     login,
-
     googleLogin,
-
     verifyOTP,
-
     resendOTP,
-
     refreshToken,
-
     logout,
-
     forgotPassword,
-
     resetPassword
 };

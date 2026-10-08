@@ -30,6 +30,7 @@ const OTP_DAILY_LIMIT = 50;
 
 const ACCESS_TOKEN_EXPIRY = "15m";
 const REFRESH_TOKEN_DAYS = 30;
+const MAX_SESSIONS_PER_USER = 5;
 
 
 // ==================================================
@@ -66,7 +67,9 @@ function hashRefreshToken(token) {
 function createAccessToken(user, userType) {
 
     const jwtPayload = {
+        id: user._id,
         userId: user._id,
+        role: userType,
         userType
     };
 
@@ -85,7 +88,7 @@ function createAccessToken(user, userType) {
 
 
 // ==================================================
-// CREATE REFRESH TOKEN + SAVE TO DATABASE
+// CREATE REFRESH TOKEN + SAVE TO DATABASE (MULTI-SESSION)
 // ==================================================
 
 async function createRefreshToken(user) {
@@ -105,10 +108,28 @@ async function createRefreshToken(user) {
         1000
     );
 
-    user.refreshTokenHash = refreshTokenHash;
+    // Ensure refreshTokens array exists
+    if (!Array.isArray(user.refreshTokens)) {
+        user.refreshTokens = [];
+    }
 
-    user.refreshTokenExpiresAt =
-        refreshTokenExpiresAt;
+    // 1. Purge expired sessions
+    const now = new Date();
+    user.refreshTokens = user.refreshTokens.filter(
+        (session) => session.expiresAt && session.expiresAt > now
+    );
+
+    // 2. Remove oldest session if max session count reached
+    if (user.refreshTokens.length >= MAX_SESSIONS_PER_USER) {
+        user.refreshTokens.shift();
+    }
+
+    // 3. Add new active session
+    user.refreshTokens.push({
+        hash: refreshTokenHash,
+        expiresAt: refreshTokenExpiresAt,
+        createdAt: now
+    });
 
     await user.save();
 
