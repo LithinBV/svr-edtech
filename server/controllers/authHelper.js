@@ -1,6 +1,9 @@
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
+// 1. IMPORT CONNECT_DB
+const connectDB = require("../config/db");
+
 const SuperAdmin = require("../models/superAdmin");
 const InstitutionAdmin = require("../models/institutionAdmin");
 const User = require("../models/user");
@@ -92,6 +95,8 @@ function createAccessToken(user, userType) {
 // ==================================================
 
 async function createRefreshToken(user) {
+    // Ensure DB connection is active before saving
+    await connectDB();
 
     const refreshToken = generateRefreshToken();
 
@@ -138,10 +143,12 @@ async function createRefreshToken(user) {
 
 
 // ==================================================
-// FIND ACCOUNT BY EMAIL
+// FIND ACCOUNT BY EMAIL (AWAITS DB CONNECTION)
 // ==================================================
 
 async function findAccountByEmail(email) {
+    // CRITICAL FIX: Ensure connection is ready before querying models
+    await connectDB();
 
     const normalizedEmail =
         email.trim().toLowerCase();
@@ -187,10 +194,12 @@ async function findAccountByEmail(email) {
 
 
 // ==================================================
-// FIND ACCOUNT BY GOOGLE ID
+// FIND ACCOUNT BY GOOGLE ID (AWAITS DB CONNECTION)
 // ==================================================
 
 async function findAccountByGoogleId(googleId) {
+    // CRITICAL FIX: Ensure connection is ready before querying models
+    await connectDB();
 
     const superAdmin =
         await SuperAdmin.findOne({
@@ -350,6 +359,8 @@ function getOTPLimitError(user) {
 // ==================================================
 
 async function generateAndSendLoginOTP(user) {
+    // Ensure DB connection is active before updating user
+    await connectDB();
 
     const limitCheck =
         getOTPLimitError(user);
