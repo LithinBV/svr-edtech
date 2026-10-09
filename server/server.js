@@ -65,11 +65,10 @@ app.get("/health", (req, res) => {
 });
 
 /* =========================================================
-   CORS
+   CORS (Handles all standard and OPTIONS preflight requests)
 ========================================================= */
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
 
 /* =========================================================
    SECURITY
