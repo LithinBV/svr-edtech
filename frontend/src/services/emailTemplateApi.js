@@ -1,11 +1,20 @@
-const API_BASE = `${import.meta.env.VITE_API_URL}/api`;
+// Read dynamically from environment variables
+const rawEnvUrl = import.meta.env.VITE_API_URL || "";
+
+// Sanitization:
+// 1. Removes any trailing slash (e.g. "https://domain.com/" -> "https://domain.com")
+// 2. Removes trailing "/api" if already entered in .env (prevents double /api/api)
+// 3. Fallbacks safely to "/api" if VITE_API_URL is missing/empty (works with Vite proxy)
+const cleanBaseUrl = rawEnvUrl
+  .replace(/\/+$/, "")
+  .replace(/\/api$/, "");
+
+const API_BASE = cleanBaseUrl ? `${cleanBaseUrl}/api` : "/api";
 
 /*
 |--------------------------------------------------------------------------
-| Get available tokens
+| Token & Header Helpers
 |--------------------------------------------------------------------------
-| We check "token" first because your emailApi.js already uses it.
-| If it doesn't exist, we fall back to accessToken.
 */
 const getTokens = () => {
   const tokens = [
@@ -19,11 +28,7 @@ const getTokens = () => {
 const getHeaders = (token) => {
   return {
     "Content-Type": "application/json",
-    ...(token
-      ? {
-          Authorization: `Bearer ${token}`,
-        }
-      : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 };
 
@@ -46,24 +51,21 @@ const parseResponse = async (response) => {
 /*
 |--------------------------------------------------------------------------
 | GET ALL EMAIL TEMPLATES
+| Route: GET /api/email-templates
 |--------------------------------------------------------------------------
 */
 export const getEmailTemplates = async () => {
   const tokens = getTokens();
+  const tokensToTry = tokens.length > 0 ? tokens : [""];
 
   let lastResponse = null;
   let lastData = null;
-
-  /*
-  | If token exists, try each available token.
-  | This helps if one stored token is expired.
-  */
-  const tokensToTry = tokens.length > 0 ? tokens : [""];
 
   for (const token of tokensToTry) {
     const response = await fetch(`${API_BASE}/email-templates`, {
       method: "GET",
       headers: getHeaders(token),
+      credentials: "include",
     });
 
     const data = await parseResponse(response);
@@ -75,9 +77,6 @@ export const getEmailTemplates = async () => {
       return data;
     }
 
-    /*
-    | Only retry with another token for authentication failure.
-    */
     if (response.status !== 401) {
       break;
     }
@@ -93,6 +92,7 @@ export const getEmailTemplates = async () => {
 /*
 |--------------------------------------------------------------------------
 | GET TEMPLATE BY ID
+| Route: GET /api/email-templates/:id
 |--------------------------------------------------------------------------
 */
 export const getEmailTemplateById = async (id) => {
@@ -107,13 +107,11 @@ export const getEmailTemplateById = async (id) => {
   let lastData = null;
 
   for (const token of tokensToTry) {
-    const response = await fetch(
-      `${API_BASE}/email-templates/${id}`,
-      {
-        method: "GET",
-        headers: getHeaders(token),
-      }
-    );
+    const response = await fetch(`${API_BASE}/email-templates/${id}`, {
+      method: "GET",
+      headers: getHeaders(token),
+      credentials: "include",
+    });
 
     const data = await parseResponse(response);
 
@@ -139,6 +137,7 @@ export const getEmailTemplateById = async (id) => {
 /*
 |--------------------------------------------------------------------------
 | CREATE TEMPLATE
+| Route: POST /api/email-templates
 |--------------------------------------------------------------------------
 */
 export const createEmailTemplate = async (templateData) => {
@@ -150,6 +149,7 @@ export const createEmailTemplate = async (templateData) => {
   const response = await fetch(`${API_BASE}/email-templates`, {
     method: "POST",
     headers: getHeaders(token),
+    credentials: "include",
     body: JSON.stringify(templateData),
   });
 
@@ -169,6 +169,7 @@ export const createEmailTemplate = async (templateData) => {
 /*
 |--------------------------------------------------------------------------
 | UPDATE TEMPLATE
+| Route: PUT /api/email-templates/:id
 |--------------------------------------------------------------------------
 */
 export const updateEmailTemplate = async (id, templateData) => {
@@ -181,14 +182,12 @@ export const updateEmailTemplate = async (id, templateData) => {
     localStorage.getItem("accessToken") ||
     "";
 
-  const response = await fetch(
-    `${API_BASE}/email-templates/${id}`,
-    {
-      method: "PUT",
-      headers: getHeaders(token),
-      body: JSON.stringify(templateData),
-    }
-  );
+  const response = await fetch(`${API_BASE}/email-templates/${id}`, {
+    method: "PUT",
+    headers: getHeaders(token),
+    credentials: "include",
+    body: JSON.stringify(templateData),
+  });
 
   const data = await parseResponse(response);
 
@@ -206,6 +205,7 @@ export const updateEmailTemplate = async (id, templateData) => {
 /*
 |--------------------------------------------------------------------------
 | DELETE TEMPLATE
+| Route: DELETE /api/email-templates/:id
 |--------------------------------------------------------------------------
 */
 export const deleteEmailTemplate = async (id) => {
@@ -218,13 +218,11 @@ export const deleteEmailTemplate = async (id) => {
     localStorage.getItem("accessToken") ||
     "";
 
-  const response = await fetch(
-    `${API_BASE}/email-templates/${id}`,
-    {
-      method: "DELETE",
-      headers: getHeaders(token),
-    }
-  );
+  const response = await fetch(`${API_BASE}/email-templates/${id}`, {
+    method: "DELETE",
+    headers: getHeaders(token),
+    credentials: "include",
+  });
 
   const data = await parseResponse(response);
 
