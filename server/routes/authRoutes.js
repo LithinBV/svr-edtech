@@ -1,97 +1,33 @@
 const express = require("express");
-
 const router = express.Router();
 
 const {
-    login,
-    googleLogin,
-    verifyOTP,
-    resendOTP,
-    refreshToken,
-    logout,
-    forgotPassword,
-    resetPassword
+  login,
+  googleLogin,
+  verifyOTP,
+  resendOTP,
+  refreshToken,
+  logout,
+  forgotPassword,
+  resetPassword,
 } = require("../controllers/authController");
 
+// Authentication & OTP
+router.post("/login", login);
+router.post("/google-login", googleLogin);
+router.post("/google", googleLogin); // Fallback alias
+router.post("/verify-otp", verifyOTP);
+router.post("/resend-otp", resendOTP);
 
-// ===============================
-// LOGIN
-// ===============================
+// Token Refresh (Supports both /refresh and /refresh-token)
+router.post("/refresh", refreshToken);
+router.post("/refresh-token", refreshToken);
 
-router.post(
-    "/login",
-    login
-);
+// Session Termination
+router.post("/logout", logout);
 
-
-// ===============================
-// GOOGLE LOGIN
-// ===============================
-
-router.post(
-    "/google-login",
-    googleLogin
-);
-
-
-// ===============================
-// VERIFY LOGIN OTP
-// ===============================
-
-router.post(
-    "/verify-otp",
-    verifyOTP
-);
-
-
-// ===============================
-// RESEND LOGIN OTP
-// ===============================
-
-router.post(
-    "/resend-otp",
-    resendOTP
-);
-
-
-// ===============================
-// REFRESH ACCESS TOKEN
-// ===============================
-
-router.post(
-    "/refresh",
-    refreshToken
-);
-
-
-// ===============================
-// LOGOUT
-// ===============================
-
-router.post(
-    "/logout",
-    logout
-);
-
-
-// ===============================
-// FORGOT PASSWORD
-// ===============================
-
-router.post(
-    "/forgot-password",
-    forgotPassword
-);
-
-
-// ===============================
-// RESET PASSWORD
-// ===============================
-
-router.post(
-    "/reset-password",
-    resetPassword
-);
-
+// Password Recovery
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password", resetPassword);
 
 module.exports = router;

@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
-// Make sure this matches the exact casing of your file (email.js vs Email.js)
-const Email = require("../../models/email"); 
+const Email = require("../../models/Email"); 
 const Communication = require("../../models/Communication");
 
 /**

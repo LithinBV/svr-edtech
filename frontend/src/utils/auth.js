@@ -1,421 +1,297 @@
 // ============================================================
-// SVR EDTECH - AUTHENTICATION UTILS
+// SVR EDTECH - AUTHENTICATION UTILS (FIXED & CONCURRENCY SAFE)
 // ============================================================
 
+// 1. Safe URL normalization (prevents double /api or trailing slashes)
+const RAW_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/+$/, "");
+const API_BASE = RAW_URL.endsWith("/api") ? RAW_URL : `${RAW_URL}/api`;
 
-// ============================================================
-// API CONFIGURATION
-// ============================================================
+const ACCESS_TOKEN_REFRESH_BUFFER = 60 * 1000; // 1 minute buffer
+const REFRESH_CHECK_INTERVAL = 30 * 1000; // 30 seconds check
 
-const API_BASE = import.meta.env.VITE_API_URL + "/api";
-
-
-// ============================================================
-// TOKEN SETTINGS
-// ============================================================
-
-const ACCESS_TOKEN_REFRESH_BUFFER = 60 * 1000; // 1 minute
-const REFRESH_CHECK_INTERVAL = 30 * 1000; // 30 seconds
-
-
-// ============================================================
-// INTERNAL STATE
-// ============================================================
-
-let refreshInProgress = false;
 let refreshPromise = null;
 let refreshWatcherStarted = false;
 
-
 // ============================================================
-// GET AUTH DATA
+// STORAGE GETTERS
 // ============================================================
 
 export function getToken() {
-    try {
-        return localStorage.getItem("token");
-    } catch {
-        return null;
-    }
+  try {
+    return localStorage.getItem("token");
+  } catch {
+    return null;
+  }
 }
 
 export function getRefreshToken() {
-    try {
-        return localStorage.getItem("refreshToken");
-    } catch {
-        return null;
-    }
+  try {
+    return localStorage.getItem("refreshToken");
+  } catch {
+    return null;
+  }
 }
 
 export function getUserType() {
-    try {
-        return localStorage.getItem("userType");
-    } catch {
-        return null;
-    }
+  try {
+    return localStorage.getItem("userType");
+  } catch {
+    return null;
+  }
 }
 
 export function getUserName() {
-    try {
-        return localStorage.getItem("userName") || "";
-    } catch {
-        return "";
-    }
+  try {
+    return localStorage.getItem("userName") || "";
+  } catch {
+    return "";
+  }
 }
 
 export function getInstitutionId() {
-    try {
-        return localStorage.getItem("institutionId");
-    } catch {
-        return null;
-    }
+  try {
+    return localStorage.getItem("institutionId");
+  } catch {
+    return null;
+  }
 }
-
-
-// ============================================================
-// CHECK LOGIN
-// ============================================================
 
 export function isLoggedIn() {
-    return !!(getToken() && getRefreshToken());
+  return !!(getToken() && getRefreshToken());
 }
-
 
 // ============================================================
 // CLEAR AUTH DATA
 // ============================================================
 
 export function clearAuthData() {
-    try {
-        localStorage.removeItem("token");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("userType");
-        localStorage.removeItem("role");
-        localStorage.removeItem("institutionId");
-        localStorage.removeItem("email");
-        localStorage.removeItem("userEmail");
-        localStorage.removeItem("userName");
-        localStorage.removeItem("lastActivityAt");
-    } catch (e) {
-        console.error("Failed to clear auth data:", e);
-    }
+  try {
+    localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("userType");
+    localStorage.removeItem("role");
+    localStorage.removeItem("institutionId");
+    localStorage.removeItem("email");
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("lastActivityAt");
+  } catch (e) {
+    console.error("Failed to clear auth data:", e);
+  }
 }
-
 
 // ============================================================
 // DECODE JWT
 // ============================================================
 
 export function decodeJWT(token) {
-    try {
-        if (!token || typeof token !== "string") {
-            return null;
-        }
+  try {
+    if (!token || typeof token !== "string") return null;
 
-        const parts = token.split(".");
-        if (parts.length !== 3) {
-            return null;
-        }
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
 
-        let payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-        while (payload.length % 4 !== 0) {
-            payload += "=";
-        }
+    let payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    while (payload.length % 4 !== 0) payload += "=";
 
-        const decodedPayload = decodeURIComponent(
-            atob(payload)
-                .split("")
-                .map((character) => {
-                    return (
-                        "%" +
-                        ("00" + character.charCodeAt(0).toString(16)).slice(-2)
-                    );
-                })
-                .join("")
-        );
+    const decodedPayload = decodeURIComponent(
+      atob(payload)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
 
-        return JSON.parse(decodedPayload);
-    } catch (error) {
-        console.error("JWT decode failed:", error);
-        return null;
-    }
+    return JSON.parse(decodedPayload);
+  } catch {
+    return null;
+  }
 }
 
-
 // ============================================================
-// REFRESH ACCESS TOKEN
+// REFRESH ACCESS TOKEN (SHARED PROMISE QUEUE)
 // ============================================================
 
 export async function refreshAccessToken() {
-    // Return ongoing refresh promise to prevent duplicate concurrent network requests
-    if (refreshInProgress && refreshPromise) {
-        return refreshPromise;
-    }
-
-    const currentRefreshToken = getRefreshToken();
-
-    if (!currentRefreshToken) {
-        console.warn("No refresh token available.");
-        return false;
-    }
-
-    refreshInProgress = true;
-
-    refreshPromise = (async () => {
-        try {
-            console.log("Refreshing access token...");
-
-            const response = await fetch(`${API_BASE}/auth/refresh`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    refreshToken: currentRefreshToken,
-                }),
-            });
-
-            let data = {};
-            try {
-                data = await response.json();
-            } catch (jsonError) {
-                console.error("Invalid refresh response format:", jsonError);
-            }
-
-            // Success
-            if (response.ok && data.success && data.token) {
-                localStorage.setItem("token", data.token);
-
-                if (data.refreshToken) {
-                    localStorage.setItem("refreshToken", data.refreshToken);
-                }
-
-                if (data.userType) {
-                    localStorage.setItem("userType", data.userType);
-                }
-
-                if (data.userName) {
-                    localStorage.setItem("userName", data.userName);
-                }
-
-                if (data.institutionId) {
-                    localStorage.setItem("institutionId", data.institutionId);
-                } else if (
-                    data.userType &&
-                    data.userType !== "INSTITUTION_ADMIN"
-                ) {
-                    localStorage.removeItem("institutionId");
-                }
-
-                console.log("Access token refreshed successfully.");
-                return true;
-            }
-
-            console.warn(
-                "Refresh request failed:",
-                data.message || response.status
-            );
-
-            // Allow short window to check if another browser tab already refreshed it
-            await new Promise((resolve) => setTimeout(resolve, 400));
-
-            const latestToken = getToken();
-            const latestRefreshToken = getRefreshToken();
-
-            if (
-                latestToken &&
-                latestRefreshToken &&
-                latestRefreshToken !== currentRefreshToken
-            ) {
-                console.log("Another tab updated the session.");
-                return true;
-            }
-
-            return false;
-        } catch (error) {
-            console.error("Token refresh network error:", error);
-            return false;
-        } finally {
-            refreshInProgress = false;
-            refreshPromise = null;
-        }
-    })();
-
+  // If an active refresh request is already in-flight, return the same promise
+  if (refreshPromise) {
     return refreshPromise;
-}
+  }
 
+  const currentRefreshToken = getRefreshToken();
+  if (!currentRefreshToken) {
+    return false;
+  }
+
+  refreshPromise = (async () => {
+    try {
+      const response = await fetch(`${API_BASE}/auth/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken: currentRefreshToken }),
+      });
+
+      let data = {};
+      try {
+        data = await response.json();
+      } catch (err) {
+        console.error("JSON parse error on refresh:", err);
+      }
+
+      if (response.ok && data.success && data.token) {
+        localStorage.setItem("token", data.token);
+
+        if (data.refreshToken) {
+          localStorage.setItem("refreshToken", data.refreshToken);
+        }
+        if (data.userType) {
+          localStorage.setItem("userType", data.userType);
+        }
+        if (data.userName) {
+          localStorage.setItem("userName", data.userName);
+        }
+        if (data.institutionId) {
+          localStorage.setItem("institutionId", data.institutionId);
+        } else if (data.userType && data.userType !== "INSTITUTION_ADMIN") {
+          localStorage.removeItem("institutionId");
+        }
+
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error("Network failure during token refresh:", error);
+      return false;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
+}
 
 // ============================================================
 // ENSURE ACCESS TOKEN IS VALID
 // ============================================================
 
 export async function ensureValidAccessToken() {
-    const token = getToken();
-    const refreshToken = getRefreshToken();
+  // If a refresh is currently executing, wait for it to complete
+  if (refreshPromise) {
+    return await refreshPromise;
+  }
 
-    if (!token || !refreshToken) {
-        return false;
-    }
+  const token = getToken();
+  const refreshToken = getRefreshToken();
 
-    try {
-        const payload = decodeJWT(token);
+  if (!token || !refreshToken) return false;
 
-        if (!payload || !payload.exp) {
-            console.warn("Access token unreadable. Attempting refresh...");
-            return await refreshAccessToken();
-        }
+  const payload = decodeJWT(token);
+  if (!payload || !payload.exp) {
+    return await refreshAccessToken();
+  }
 
-        const expirationTime = payload.exp * 1000;
-        const currentTime = Date.now();
+  const expirationTime = payload.exp * 1000;
+  const currentTime = Date.now();
 
-        // Token still has ample validity time remaining
-        if (expirationTime - currentTime > ACCESS_TOKEN_REFRESH_BUFFER) {
-            return true;
-        }
+  // If token is expiring within 60 seconds, refresh proactively
+  if (expirationTime - currentTime > ACCESS_TOKEN_REFRESH_BUFFER) {
+    return true;
+  }
 
-        console.log("Access token nearing expiration. Refreshing...");
-        return await refreshAccessToken();
-    } catch (error) {
-        console.error("Access token validation check error:", error);
-        return await refreshAccessToken();
-    }
+  return await refreshAccessToken();
 }
 
-
 // ============================================================
-// API FETCH (AUTO-RETRY ON 401)
+// API FETCH (BLOCKS CONCURRENT CALLS & HANDLES RETRIES)
 // ============================================================
 
 export async function apiFetch(url, options = {}) {
-    // 1. Pre-emptively ensure token is valid
-    await ensureValidAccessToken();
+  // 1. Wait for any active refresh or preemptively refresh if expiring
+  await ensureValidAccessToken();
 
-    const headers = {
-        "Content-Type": "application/json",
-        ...options.headers,
-    };
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {}),
+  };
 
-    const token = getToken();
-    if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
+  const currentToken = getToken();
+  if (currentToken) {
+    headers["Authorization"] = `Bearer ${currentToken}`;
+  }
+
+  let response = await fetch(url, { ...options, headers });
+
+  // 2. If token expired while tab was idle or asleep
+  if (response.status === 401) {
+    const refreshed = await refreshAccessToken();
+    if (refreshed) {
+      const freshToken = getToken();
+      if (freshToken) {
+        headers["Authorization"] = `Bearer ${freshToken}`;
+      }
+      // Retry original request with the renewed token
+      response = await fetch(url, { ...options, headers });
+    } else {
+      logoutUser();
     }
+  }
 
-    let response = await fetch(url, {
-        ...options,
-        headers,
-    });
-
-    // 2. If token expired while offline/sleeping, catch 401, refresh, and retry once
-    if (response.status === 401) {
-        const refreshed = await refreshAccessToken();
-        if (refreshed) {
-            const freshToken = getToken();
-            if (freshToken) {
-                headers["Authorization"] = `Bearer ${freshToken}`;
-            }
-
-            response = await fetch(url, {
-                ...options,
-                headers,
-            });
-        } else {
-            // Refresh token invalid or revoked
-            logoutUser();
-        }
-    }
-
-    return response;
+  return response;
 }
 
-
 // ============================================================
-// START TOKEN REFRESH WATCHER
+// SESSION WATCHER & BACKGROUND INTERVAL
 // ============================================================
 
 export function startTokenRefreshWatcher() {
-    if (refreshWatcherStarted) {
-        return;
-    }
+  if (refreshWatcherStarted) return;
+  refreshWatcherStarted = true;
 
-    refreshWatcherStarted = true;
+  ensureValidAccessToken().catch(() => {});
 
-    // Check immediately upon startup
-    ensureValidAccessToken().catch((error) => {
-        console.error("Initial token validation error:", error);
-    });
+  const intervalId = setInterval(async () => {
+    if (!getToken() || !getRefreshToken()) return;
+    await ensureValidAccessToken();
+  }, REFRESH_CHECK_INTERVAL);
 
-    // Periodic validation loop
-    const intervalId = setInterval(async () => {
-        const token = getToken();
-        const refreshToken = getRefreshToken();
-
-        if (!token || !refreshToken) {
-            return;
-        }
-
-        const valid = await ensureValidAccessToken();
-        if (!valid) {
-            console.warn("Periodic session refresh failed.");
-        }
-    }, REFRESH_CHECK_INTERVAL);
-
-    window.__svrAuthRefreshInterval = intervalId;
-
-    // Synchronize authentication changes across tabs
-    window.addEventListener("storage", handleStorageSync);
+  window.__svrAuthRefreshInterval = intervalId;
+  window.addEventListener("storage", handleStorageSync);
 }
-
-
-// ============================================================
-// TAB STORAGE SYNC HANDLER
-// ============================================================
 
 function handleStorageSync(event) {
-    if (event.key === "token" && !event.newValue) {
-        // Logged out in another tab
-        stopTokenRefreshWatcher();
-    }
+  if (event.key === "token" && !event.newValue) {
+    stopTokenRefreshWatcher();
+  }
 }
-
-
-// ============================================================
-// STOP TOKEN REFRESH WATCHER
-// ============================================================
 
 export function stopTokenRefreshWatcher() {
-    if (window.__svrAuthRefreshInterval) {
-        clearInterval(window.__svrAuthRefreshInterval);
-        window.__svrAuthRefreshInterval = null;
-    }
-
-    window.removeEventListener("storage", handleStorageSync);
-    refreshWatcherStarted = false;
+  if (window.__svrAuthRefreshInterval) {
+    clearInterval(window.__svrAuthRefreshInterval);
+    window.__svrAuthRefreshInterval = null;
+  }
+  window.removeEventListener("storage", handleStorageSync);
+  refreshWatcherStarted = false;
 }
-
 
 // ============================================================
 // LOGOUT
 // ============================================================
 
 export async function logoutUser() {
-    const refreshToken = getRefreshToken();
-
-    try {
-        if (refreshToken) {
-            await fetch(`${API_BASE}/auth/logout`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    refreshToken,
-                }),
-            });
-        }
-    } catch (error) {
-        console.error("Logout request failed:", error);
-    } finally {
-        stopTokenRefreshWatcher();
-        clearAuthData();
+  const refreshToken = getRefreshToken();
+  try {
+    if (refreshToken) {
+      await fetch(`${API_BASE}/auth/logout`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken }),
+      });
     }
+  } catch (error) {
+    console.error("Logout request failed:", error);
+  } finally {
+    stopTokenRefreshWatcher();
+    clearAuthData();
+    window.location.href = "/login";
+  }
 }

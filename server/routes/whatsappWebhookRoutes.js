@@ -2,9 +2,6 @@ const express = require("express");
 
 const router = express.Router();
 
-const getWhatsAppProvider = require(
-  "../services/whatsapp/whatsappProviderFactory"
-);
 
 const {
   updateWhatsAppStatus,
