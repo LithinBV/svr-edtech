@@ -52,7 +52,7 @@ const whatsappTemplateRoutes = require("./routes/whatsappTemplateRoutes");
 const app = express();
 
 /* =========================================================
-   HEALTH CHECK
+   HEALTH CHECK (Runs without DB wait)
 ========================================================= */
 
 app.get("/health", (req, res) => {
@@ -69,14 +69,8 @@ app.get("/health", (req, res) => {
 ========================================================= */
 
 app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
-/* =========================================================
-   DATABASE
-========================================================= */
-
-connectDB().catch((error) => {
-    console.error("Database initialization failed:", error.message);
-});
 /* =========================================================
    SECURITY
 ========================================================= */
@@ -105,23 +99,32 @@ app.use(
 );
 
 /* =========================================================
-   MANAGER LEADS ROUTES
+   DATABASE CONNECTION MIDDLEWARE (SERVERLESS SAFE)
+   Ensures DB is 100% connected before any route queries MongoDB
 ========================================================= */
 
-/*
-    IMPORTANT:
+app.use(async (req, res, next) => {
+    // Skip OPTIONS preflight requests
+    if (req.method === "OPTIONS") return next();
 
-    Manager Leads must be registered before
-    /api/manager.
+    // Skip static page requests
+    if (!req.originalUrl.startsWith("/api/")) return next();
 
-    Otherwise:
+    try {
+        await connectDB();
+        next();
+    } catch (error) {
+        console.error("Database connection middleware failed:", error.message);
+        return res.status(503).json({
+            success: false,
+            message: "Database connection failed. Please try again shortly.",
+        });
+    }
+});
 
-        /api/manager/:id
-
-    could catch:
-
-        /api/manager/leads
-*/
+/* =========================================================
+   MANAGER LEADS ROUTES
+========================================================= */
 
 app.use(
     "/api/manager/leads",
@@ -138,93 +141,35 @@ app.use(
 );
 
 /* =========================================================
-   PAGE DIRECTORY
+   API ROUTES
+========================================================= */
+
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/institutions", institutionRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/leads", leadRoutes);
+app.use("/api/finished-leads", finishedLeadRoutes);
+app.use("/api/communications", communicationRoutes);
+app.use("/api/whatsapp", whatsappRoutes);
+app.use("/api/whatsapp-templates", whatsappTemplateRoutes);
+app.use("/api/email", emailRoutes);
+app.use("/api/email-templates", emailTemplateRoutes);
+app.use("/api/analytics", analyticsRoutes);
+app.use("/api/performance", performanceRoutes);
+app.use("/api/lead-notes", leadNoteRoutes);
+app.use("/api/lead-history", leadHistoryRoutes);
+app.use("/api/teams", teamRoutes);
+app.use("/api/profile", profileRoutes);
+
+/* =========================================================
+   PAGE DIRECTORY & STATIC FILES
 ========================================================= */
 
 const pagesDirectory = path.join(
     __dirname,
     "../public/pages"
 );
-
-/* =========================================================
-   OLD HTML URL REDIRECT
-
-   /pages/login.html
-   -> /login
-========================================================= */
-
-app.get(
-    "/pages/:page.html",
-    (req, res, next) => {
-
-        const pageName = req.params.page;
-
-        if (
-            !pageName ||
-            pageName.includes(".") ||
-            pageName.includes("/") ||
-            pageName.includes("\\")
-        ) {
-            return next();
-        }
-
-        const htmlFile = path.join(
-            pagesDirectory,
-            `${pageName}.html`
-        );
-
-        if (fs.existsSync(htmlFile)) {
-            return res.redirect(
-                301,
-                `/${pageName}`
-            );
-        }
-
-        next();
-    }
-);
-
-/* =========================================================
-   ALSO SUPPORT
-
-   /login.html
-   /dashboard.html
-========================================================= */
-
-app.get(
-    "/:page.html",
-    (req, res, next) => {
-
-        const pageName = req.params.page;
-
-        if (
-            !pageName ||
-            pageName.includes(".") ||
-            pageName.includes("/") ||
-            pageName.includes("\\")
-        ) {
-            return next();
-        }
-
-        const htmlFile = path.join(
-            pagesDirectory,
-            `${pageName}.html`
-        );
-
-        if (fs.existsSync(htmlFile)) {
-            return res.redirect(
-                301,
-                `/${pageName}`
-            );
-        }
-
-        next();
-    }
-);
-
-/* =========================================================
-   STATIC FILES
-========================================================= */
 
 app.use(
     express.static(
@@ -236,172 +181,76 @@ app.use(
 );
 
 /* =========================================================
-   AUTH API
+   HTML URL REDIRECTS
 ========================================================= */
 
-app.use(
-    "/api/auth",
-    authRoutes
+app.get(
+    "/pages/:page.html",
+    (req, res, next) => {
+        const pageName = req.params.page;
+
+        if (
+            !pageName ||
+            pageName.includes(".") ||
+            pageName.includes("/") ||
+            pageName.includes("\\")
+        ) {
+            return next();
+        }
+
+        const htmlFile = path.join(
+            pagesDirectory,
+            `${pageName}.html`
+        );
+
+        if (fs.existsSync(htmlFile)) {
+            return res.redirect(
+                301,
+                `/${pageName}`
+            );
+        }
+
+        next();
+    }
 );
 
-/* =========================================================
-   ADMIN API
-========================================================= */
+app.get(
+    "/:page.html",
+    (req, res, next) => {
+        const pageName = req.params.page;
 
-app.use(
-    "/api/admin",
-    adminRoutes
-);
+        if (
+            !pageName ||
+            pageName.includes(".") ||
+            pageName.includes("/") ||
+            pageName.includes("\\")
+        ) {
+            return next();
+        }
 
-/* =========================================================
-   INSTITUTIONS API
-========================================================= */
+        const htmlFile = path.join(
+            pagesDirectory,
+            `${pageName}.html`
+        );
 
-app.use(
-    "/api/institutions",
-    institutionRoutes
-);
+        if (fs.existsSync(htmlFile)) {
+            return res.redirect(
+                301,
+                `/${pageName}`
+            );
+        }
 
-/* =========================================================
-   USERS API
-========================================================= */
-
-app.use(
-    "/api/users",
-    userRoutes
-);
-
-/* =========================================================
-   LEADS API
-========================================================= */
-
-app.use(
-    "/api/leads",
-    leadRoutes
-);
-
-/* =========================================================
-   FINISHED LEADS API
-========================================================= */
-
-app.use(
-    "/api/finished-leads",
-    finishedLeadRoutes
-);
-
-/* =========================================================
-   COMMUNICATION API
-========================================================= */
-
-app.use(
-    "/api/communications",
-    communicationRoutes
-);
-
-/* =========================================================
-   WHATSAPP API
-========================================================= */
-
-app.use(
-    "/api/whatsapp",
-    whatsappRoutes
-);
-
-/* =========================================================
-   WHATSAPP TEMPLATE API
-========================================================= */
-
-app.use(
-    "/api/whatsapp-templates",
-    whatsappTemplateRoutes
-);
-
-/* =========================================================
-   EMAIL API
-========================================================= */
-
-app.use(
-    "/api/email",
-    emailRoutes
-);
-
-/* =========================================================
-   EMAIL TEMPLATE API
-========================================================= */
-
-app.use(
-    "/api/email-templates",
-    emailTemplateRoutes
-);
-
-/* =========================================================
-   ANALYTICS API
-========================================================= */
-
-app.use(
-    "/api/analytics",
-    analyticsRoutes
-);
-
-/* =========================================================
-   PERFORMANCE API
-========================================================= */
-
-app.use(
-    "/api/performance",
-    performanceRoutes
-);
-
-/* =========================================================
-   LEAD NOTES API
-========================================================= */
-
-app.use(
-    "/api/lead-notes",
-    leadNoteRoutes
-);
-
-/* =========================================================
-   LEAD HISTORY API
-========================================================= */
-
-app.use(
-    "/api/lead-history",
-    leadHistoryRoutes
-);
-
-/* =========================================================
-   TEAM API
-========================================================= */
-
-app.use(
-    "/api/teams",
-    teamRoutes
-);
-
-/* =========================================================
-   PROFILE API
-========================================================= */
-
-app.use(
-    "/api/profile",
-    profileRoutes
+        next();
+    }
 );
 
 /* =========================================================
    CLEAN PAGE URLS
-
-   Example:
-
-   /login
-   /dashboard
-   /admin-dashboard
 ========================================================= */
 
 app.get(
     "/:page",
     (req, res, next) => {
-
         const pageName = req.params.page;
 
         if (
@@ -443,20 +292,7 @@ app.get(
 
 app.use(
     (req, res) => {
-
-        console.log("=================================");
-        console.log("❌ 404 ROUTE NOT FOUND");
-        console.log("METHOD:", req.method);
-        console.log("URL:", req.originalUrl);
-        console.log("=================================");
-
-        /*
-            API request
-        */
-
-        if (
-            req.originalUrl.startsWith("/api/")
-        ) {
+        if (req.originalUrl.startsWith("/api/")) {
             return res.status(404).json({
                 success: false,
                 message: "API route not found.",
@@ -464,13 +300,7 @@ app.use(
             });
         }
 
-        /*
-            Normal page request
-        */
-
-        return res.status(404).send(
-            "Page not found."
-        );
+        return res.status(404).send("Page not found.");
     }
 );
 
@@ -480,141 +310,47 @@ app.use(
 
 app.use(
     (err, req, res, next) => {
+        console.error("❌ SERVER ERROR:", err);
 
-        console.error("=================================");
-        console.error("❌ SERVER ERROR");
-        console.error(err);
-        console.error("=================================");
-
-        /*
-            CORS error
-        */
-
-        if (
-            err.message === "Not allowed by CORS"
-        ) {
+        if (err.message === "Not allowed by CORS") {
             return res.status(403).json({
                 success: false,
                 message: "CORS origin not allowed.",
             });
         }
 
-        /*
-            API error
-        */
-
-        if (
-            req.originalUrl.startsWith("/api/")
-        ) {
-            return res.status(
-                err.status || 500
-            ).json({
+        if (req.originalUrl.startsWith("/api/")) {
+            return res.status(err.status || 500).json({
                 success: false,
-                message:
-                    err.message ||
-                    "Internal server error",
+                message: err.message || "Internal server error",
             });
         }
 
-        /*
-            Normal server error
-        */
-
-        return res.status(
-            err.status || 500
-        ).send(
-            err.message ||
-            "Internal server error"
+        return res.status(err.status || 500).send(
+            err.message || "Internal server error"
         );
     }
 );
 
 /* =========================================================
-   SERVER START
+   SERVER START (LOCAL ONLY)
 ========================================================= */
 
-const PORT =
-    process.env.PORT || 3000;
-
-/*
-    Local:
-
-        npm start
-
-    -> app.listen()
-
-    Vercel:
-
-        exports app
-
-    -> Vercel handles the server
-*/
+const PORT = process.env.PORT || 3000;
 
 if (require.main === module) {
-
-    app.listen(
-        PORT,
-        () => {
-
-            console.log("=================================");
-            console.log("🚀 SVR-EDTECH SERVER");
-            console.log("=================================");
-
-            console.log(
-                `Server running on http://localhost:${PORT}`
-            );
-
-            console.log(
-                `Auth API: http://localhost:${PORT}/api/auth`
-            );
-
-            console.log(
-                `Leads API: http://localhost:${PORT}/api/leads`
-            );
-
-            console.log(
-                `Manager Leads API: http://localhost:${PORT}/api/manager/leads`
-            );
-
-            console.log(
-                `Finished Leads API: http://localhost:${PORT}/api/finished-leads`
-            );
-
-            console.log(
-                `Analytics API: http://localhost:${PORT}/api/analytics`
-            );
-
-            console.log(
-                `Performance API: http://localhost:${PORT}/api/performance`
-            );
-
-            console.log(
-                `Communication API: http://localhost:${PORT}/api/communications`
-            );
-
-            console.log(
-                `WhatsApp API: http://localhost:${PORT}/api/whatsapp`
-            );
-
-            console.log(
-                `Email API: http://localhost:${PORT}/api/email`
-            );
-
-            console.log(
-                `Email Templates API: http://localhost:${PORT}/api/email-templates`
-            );
-
-            console.log(
-                `Profile API: http://localhost:${PORT}/api/profile`
-            );
-
-            console.log("=================================");
+    app.listen(PORT, async () => {
+        try {
+            await connectDB();
+            console.log(`Server running on http://localhost:${PORT}`);
+        } catch (e) {
+            console.error("Local DB connection failed:", e.message);
         }
-    );
+    });
 }
 
 /* =========================================================
-   EXPORT
+   EXPORT FOR VERCEL
 ========================================================= */
 
 module.exports = app;
