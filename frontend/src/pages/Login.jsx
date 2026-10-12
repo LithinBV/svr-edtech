@@ -9,7 +9,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 
 const GOOGLE_CLIENT_ID =
-    "YOUR_EXISTING_GOOGLE_CLIENT_ID";
+    "156975952914-brbedulqojpg63ns1f12smic32ijll47.apps.googleusercontent.com";
 
 
 function Login() {
@@ -98,7 +98,10 @@ function Login() {
                             text: "continue_with",
                             shape: "rectangular",
                             logo_alignment: "left",
-                            width: 400,
+                            width: Math.min(
+                            400,
+                            Math.max(200, googleButtonRef.current?.clientWidth || 320)
+                            ),
                         }
                     );
                 }
@@ -821,7 +824,7 @@ function Login() {
 
                 {/* RIGHT SIDE */}
 
-                <div className="flex items-center justify-center bg-white p-7 sm:p-10 md:p-12">
+              <div className="flex items-center justify-center bg-white p-4 sm:p-7 md:p-12">
 
                     <div className="w-full max-w-md">
 
@@ -1010,7 +1013,7 @@ function Login() {
                                         ref={
                                             googleButtonRef
                                         }
-                                        className="flex justify-center min-h-[44px]"
+                                        className="flex w-full min-w-0 justify-center overflow-hidden min-h-[40px]"
                                     />
 
                                 </div>
@@ -1187,4 +1190,4 @@ function Login() {
     );
 }
 
-export default Login;
+export default Login;   
