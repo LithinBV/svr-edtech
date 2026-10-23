@@ -370,7 +370,7 @@ const ExecutiveSidebar = ({
                                 text-white
                             "
                         >
-                            SVR EDTECH
+                            LeadKnot
                         </p>
 
                         <p

@@ -11,7 +11,7 @@ const HomeTestimonials = () => {
     const testimonials = [
         {
             text:
-                "SVR-EDTECH gives our admissions team a much simpler way to organize leads and stay on top of every follow-up.",
+                "LeadKnot gives our admissions team a much simpler way to organize leads and stay on top of every follow-up.",
             name: "Education Manager",
             role: "Admissions Team",
             type: "Admissions",

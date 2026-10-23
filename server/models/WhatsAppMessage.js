@@ -3,72 +3,68 @@ const mongoose = require("mongoose");
 const whatsappMessageSchema = new mongoose.Schema(
   {
     // =====================================================
-    // LEAD
+    // LEAD REFERENCE
     // =====================================================
-
-    // Lead connected to this WhatsApp activity
     leadId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Lead",
-      required: true,
+      default: null, // Default null so unknown incoming numbers don't crash the worker
       index: true,
     },
 
     // =====================================================
-    // EXECUTIVE / USER
+    // EXECUTIVE / AGENT
     // =====================================================
-
-    // Executive who prepared/opened the message
     agentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      default: null, // Can be null on incoming messages until assigned
       index: true,
     },
 
     // =====================================================
-    // PHONE NUMBER
+    // PHONE NUMBERS
     // =====================================================
-
     // Lead's WhatsApp number
     phoneNumber: {
       type: String,
       required: true,
       trim: true,
+      index: true,
+    },
+
+    // Executive's connected WhatsApp number (optional session tracker)
+    sessionPhone: {
+      type: String,
+      trim: true,
+      default: null,
     },
 
     // =====================================================
-    // MESSAGE
+    // MESSAGE CONTENT & IDS
     // =====================================================
-
-    // Final message after variables are replaced
-    //
-    // Example:
-    //
-    // Template:
-    // Hi {{name}}, following up about {{course}}.
-    //
-    // Stored message:
-    // Hi Rahul, following up about Java Full Stack.
-    //
     message: {
       type: String,
-      required: true,
+      default: "",
       trim: true,
     },
 
-    // =====================================================
-    // TEMPLATE INFORMATION
-    // =====================================================
+    // Unique Baileys/WhatsApp message ID to prevent duplicate database saves
+    whatsappMessageId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
 
-    // Template name used by the executive
+    // =====================================================
+    // TEMPLATE DETAILS (Optional for click-to-open)
+    // =====================================================
     templateName: {
       type: String,
       trim: true,
       default: null,
     },
 
-    // Template ID used
     templateId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "WhatsAppTemplate",
@@ -76,98 +72,72 @@ const whatsappMessageSchema = new mongoose.Schema(
     },
 
     // =====================================================
-    // MESSAGE DIRECTION
+    // DIRECTION
     // =====================================================
-
-    // OUTBOUND:
-    // Executive/company → Lead
-    //
-    // INBOUND:
-    // Lead → Executive/company
-    //
-    // Currently our normal WhatsApp setup will create
-    // OUTBOUND records only.
-    //
-    // INBOUND can be used later if you connect an
-    // integration that provides incoming WhatsApp messages.
     direction: {
       type: String,
       enum: ["OUTBOUND", "INBOUND"],
-      default: "OUTBOUND",
+      required: true,
       index: true,
     },
 
     // =====================================================
-    // APPLICATION STATUS
+    // STATUS (Supports both UI clicks & Baileys live sync)
     // =====================================================
-
-    // IMPORTANT:
-    //
-    // These are OUR application's statuses.
-    //
-    // They are NOT WhatsApp delivery/read statuses.
-    //
-    // PREPARED:
-    // Message was prepared inside SVR-EDTECH.
-    //
-    // OPENED:
-    // SVR-EDTECH opened WhatsApp with this message.
-    //
     status: {
       type: String,
       enum: [
         "PREPARED",
         "OPENED",
+        "SENT",
+        "DELIVERED",
+        "RECEIVED",
+        "FAILED",
       ],
-      default: "PREPARED",
+      default: "SENT",
       index: true,
+    },
+
+    // =====================================================
+    // MEDIA SUPPORT (Optional attachments / brochures)
+    // =====================================================
+    mediaUrl: {
+      type: String,
+      default: null,
+    },
+    mediaType: {
+      type: String,
+      enum: ["text", "image", "document", "audio"],
+      default: "text",
     },
 
     // =====================================================
     // TIMESTAMPS
     // =====================================================
-
-    // When SVR-EDTECH opened WhatsApp
     openedAt: {
       type: Date,
       default: null,
     },
   },
-
   {
     timestamps: true,
   }
 );
 
 // =====================================================
-// INDEXES
+// OPTIMIZED INDEXES
 // =====================================================
 
-// Get a lead's WhatsApp history quickly
-whatsappMessageSchema.index({
-  leadId: 1,
-  createdAt: -1,
-});
+// Ascending index for chronological chat timeline rendering
+whatsappMessageSchema.index({ leadId: 1, createdAt: 1 });
 
-// Get messages by executive
-whatsappMessageSchema.index({
-  agentId: 1,
-  createdAt: -1,
-});
+// Fast lookup for agent audits & recent chats
+whatsappMessageSchema.index({ agentId: 1, createdAt: -1 });
 
-// Get messages by direction
-whatsappMessageSchema.index({
-  direction: 1,
-  createdAt: -1,
-});
+// Phone number index for worker phone matching
+whatsappMessageSchema.index({ phoneNumber: 1, createdAt: -1 });
 
-// Get messages by status
-whatsappMessageSchema.index({
-  status: 1,
-  createdAt: -1,
-});
-
-module.exports = mongoose.model(
-  "WhatsAppMessage",
-  whatsappMessageSchema
-);
+// Model caching export (serverless safe)
+module.exports =
+  mongoose.models.WhatsAppMessage ||
+  mongoose.model("WhatsAppMessage", whatsappMessageSchema);

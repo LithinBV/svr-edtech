@@ -237,11 +237,11 @@ const HomeHeader = () => {
                                 "
                             >
                                 <span className="text-[#102236]">
-                                    SVR-
+                                    Lead
                                 </span>
 
                                 <span className="text-[#F6C945]">
-                                    EDTECH
+                                    Knot
                                 </span>
                             </div>
 
@@ -255,7 +255,7 @@ const HomeHeader = () => {
                                     text-slate-400
                                 "
                             >
-                                LEARN · LEAD · GROW
+                                Powered by SVR-EDTECH
                             </p>
                         </div>
                     </button>

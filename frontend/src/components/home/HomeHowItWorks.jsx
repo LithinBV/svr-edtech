@@ -18,7 +18,7 @@ const HomeHowItWorks = () => {
             title: "Login",
             subtitle: "Get Started",
             description:
-                "Securely access your SVR-EDTECH workspace and get everything you need in one place.",
+                "Securely access your LeadKnot workspace and get everything you need in one place.",
             icon: UserPlus,
             color: "blue",
             position: "left",
@@ -257,7 +257,7 @@ const HomeHowItWorks = () => {
                             text-slate-400
                         "
                     >
-                        Your journey with SVR-EDTECH
+                        Your journey with LeadKnot
                     </span>
 
                     <span

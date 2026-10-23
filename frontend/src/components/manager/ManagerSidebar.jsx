@@ -913,7 +913,7 @@ function ManagerSidebar({
                                 tracking-tight
                             "
                         >
-                            SVR EDTECH
+                            LeadKnot
                         </p>
 
 

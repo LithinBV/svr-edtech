@@ -245,7 +245,7 @@ const HomeFeatures = () => {
                         "
                     >
                         From the first lead to the final conversion,
-                        SVR-EDTECH gives your team the tools to
+                        LeadKnot gives your team the tools to
                         manage, collaborate, follow up and grow.
                     </p>
                 </div>

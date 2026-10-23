@@ -208,7 +208,7 @@ function AdminSidebar({
                                         text-white
                                     "
                                 >
-                                    SVR EDTECH
+                                    LeadKnot
                                 </p>
 
                                 <p

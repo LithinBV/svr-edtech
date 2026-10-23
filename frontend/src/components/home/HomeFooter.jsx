@@ -207,7 +207,7 @@ const HomeFooter = () => {
                                         tracking-tight
                                     "
                                 >
-                                    SVR
+                                    LeadKnot
                                 </div>
 
                                 <div
@@ -219,7 +219,7 @@ const HomeFooter = () => {
                                         text-white/35
                                     "
                                 >
-                                    EDTECH
+                                    Powered by SVR-EDTECH
                                 </div>
 
                             </div>

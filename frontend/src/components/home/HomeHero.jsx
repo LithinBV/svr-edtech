@@ -425,7 +425,7 @@ const HomeHero = () => {
                                 animate-[fadeSlideUp_1s_ease-out]
                             "
                         >
-                            SVR-EDTECH brings your leads, teams,
+                            LeadKnot brings your leads, teams,
                             follow-ups and performance together in
                             one intelligent education management
                             platform.
@@ -700,7 +700,7 @@ const HomeHero = () => {
 
                                     <div>
                                         <p className="text-white font-black">
-                                            SVR-EDTECH
+                                            Lead<spam className="text-yellow-400">Knot</spam>
                                         </p>
 
                                         <p className="text-white/45 text-xs">

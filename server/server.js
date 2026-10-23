@@ -30,6 +30,8 @@ const leadNoteRoutes = require("./routes/leadNoteRoutes");
 const leadHistoryRoutes = require("./routes/leadHistoryRoutes");
 
 const communicationRoutes = require("./routes/communicationRoutes");
+
+// Unified WhatsApp route (handles templates, click-to-open, and chat history)
 const whatsappRoutes = require("./routes/whatsappRoutes");
 
 const emailRoutes = require("./routes/emailRoutes");
@@ -43,13 +45,15 @@ const managerLeadRoutes = require("./routes/managerLeadRoutes");
 const performanceRoutes = require("./routes/performanceRoutes");
 
 const profileRoutes = require("./routes/profileRoutes");
-const whatsappTemplateRoutes = require("./routes/whatsappTemplateRoutes");
 
 /* =========================================================
-   APP
+   APP INITIALIZATION
 ========================================================= */
 
 const app = express();
+
+// Trust reverse proxies (Vercel, Nginx, Cloudflare) for dynamic protocol/host resolution
+app.set("trust proxy", 1);
 
 /* =========================================================
    HEALTH CHECK (Runs without DB wait)
@@ -60,19 +64,16 @@ app.get("/health", (req, res) => {
         success: true,
         message: "SVR-EDTECH server is running",
         environment: process.env.NODE_ENV || "development",
+        host: req.headers.host,
         timestamp: new Date().toISOString(),
     });
 });
 
 /* =========================================================
-   CORS (Handles all standard and OPTIONS preflight requests)
+   CORS & SECURITY
 ========================================================= */
 
 app.use(cors(corsOptions));
-
-/* =========================================================
-   SECURITY
-========================================================= */
 
 app.use(
     helmet({
@@ -99,7 +100,7 @@ app.use(
 
 /* =========================================================
    DATABASE CONNECTION MIDDLEWARE (SERVERLESS SAFE)
-   Ensures DB is 100% connected before any route queries MongoDB
+   Ensures DB is connected before any API route queries MongoDB
 ========================================================= */
 
 app.use(async (req, res, next) => {
@@ -122,25 +123,14 @@ app.use(async (req, res, next) => {
 });
 
 /* =========================================================
-   MANAGER LEADS ROUTES
+   MANAGER ROUTES
 ========================================================= */
 
-app.use(
-    "/api/manager/leads",
-    managerLeadRoutes
-);
+app.use("/api/manager/leads", managerLeadRoutes);
+app.use("/api/manager", managerTeamRoutes);
 
 /* =========================================================
-   MANAGER TEAM ROUTES
-========================================================= */
-
-app.use(
-    "/api/manager",
-    managerTeamRoutes
-);
-
-/* =========================================================
-   API ROUTES
+   CORE API ROUTES
 ========================================================= */
 
 app.use("/api/auth", authRoutes);
@@ -150,8 +140,11 @@ app.use("/api/users", userRoutes);
 app.use("/api/leads", leadRoutes);
 app.use("/api/finished-leads", finishedLeadRoutes);
 app.use("/api/communications", communicationRoutes);
+
+// WhatsApp Routes (Mounted to both paths for backwards compatibility with all frontend calls)
 app.use("/api/whatsapp", whatsappRoutes);
-app.use("/api/whatsapp-templates", whatsappTemplateRoutes);
+app.use("/api/whatsapp-templates", whatsappRoutes);
+
 app.use("/api/email", emailRoutes);
 app.use("/api/email-templates", emailTemplateRoutes);
 app.use("/api/analytics", analyticsRoutes);
@@ -165,174 +158,133 @@ app.use("/api/profile", profileRoutes);
    PAGE DIRECTORY & STATIC FILES
 ========================================================= */
 
-const pagesDirectory = path.join(
-    __dirname,
-    "../public/pages"
-);
+const pagesDirectory = path.join(__dirname, "../public/pages");
 
-app.use(
-    express.static(
-        path.join(
-            __dirname,
-            "../public"
-        )
-    )
-);
+app.use(express.static(path.join(__dirname, "../public")));
 
 /* =========================================================
    HTML URL REDIRECTS
 ========================================================= */
 
-app.get(
-    "/pages/:page.html",
-    (req, res, next) => {
-        const pageName = req.params.page;
+app.get("/pages/:page.html", (req, res, next) => {
+    const pageName = req.params.page;
 
-        if (
-            !pageName ||
-            pageName.includes(".") ||
-            pageName.includes("/") ||
-            pageName.includes("\\")
-        ) {
-            return next();
-        }
-
-        const htmlFile = path.join(
-            pagesDirectory,
-            `${pageName}.html`
-        );
-
-        if (fs.existsSync(htmlFile)) {
-            return res.redirect(
-                301,
-                `/${pageName}`
-            );
-        }
-
-        next();
+    if (
+        !pageName ||
+        pageName.includes(".") ||
+        pageName.includes("/") ||
+        pageName.includes("\\")
+    ) {
+        return next();
     }
-);
 
-app.get(
-    "/:page.html",
-    (req, res, next) => {
-        const pageName = req.params.page;
+    const htmlFile = path.join(pagesDirectory, `${pageName}.html`);
 
-        if (
-            !pageName ||
-            pageName.includes(".") ||
-            pageName.includes("/") ||
-            pageName.includes("\\")
-        ) {
-            return next();
-        }
-
-        const htmlFile = path.join(
-            pagesDirectory,
-            `${pageName}.html`
-        );
-
-        if (fs.existsSync(htmlFile)) {
-            return res.redirect(
-                301,
-                `/${pageName}`
-            );
-        }
-
-        next();
+    if (fs.existsSync(htmlFile)) {
+        return res.redirect(301, `/${pageName}`);
     }
-);
+
+    next();
+});
+
+app.get("/:page.html", (req, res, next) => {
+    const pageName = req.params.page;
+
+    if (
+        !pageName ||
+        pageName.includes(".") ||
+        pageName.includes("/") ||
+        pageName.includes("\\")
+    ) {
+        return next();
+    }
+
+    const htmlFile = path.join(pagesDirectory, `${pageName}.html`);
+
+    if (fs.existsSync(htmlFile)) {
+        return res.redirect(301, `/${pageName}`);
+    }
+
+    next();
+});
 
 /* =========================================================
    CLEAN PAGE URLS
 ========================================================= */
 
-app.get(
-    "/:page",
-    (req, res, next) => {
-        const pageName = req.params.page;
+app.get("/:page", (req, res, next) => {
+    const pageName = req.params.page;
 
-        if (
-            !pageName ||
-            pageName.includes(".") ||
-            pageName.includes("/") ||
-            pageName.includes("\\")
-        ) {
-            return next();
-        }
-
-        const htmlFile = path.join(
-            pagesDirectory,
-            `${pageName}.html`
-        );
-
-        if (fs.existsSync(htmlFile)) {
-            return res.sendFile(htmlFile);
-        }
-
-        next();
+    if (
+        !pageName ||
+        pageName.includes(".") ||
+        pageName.includes("/") ||
+        pageName.includes("\\")
+    ) {
+        return next();
     }
-);
+
+    const htmlFile = path.join(pagesDirectory, `${pageName}.html`);
+
+    if (fs.existsSync(htmlFile)) {
+        return res.sendFile(htmlFile);
+    }
+
+    next();
+});
 
 /* =========================================================
    HOME PAGE
 ========================================================= */
 
-app.get(
-    "/",
-    (req, res) => {
-        res.redirect("/login");
-    }
-);
+app.get("/", (req, res) => {
+    res.redirect("/login");
+});
 
 /* =========================================================
    404 HANDLER
 ========================================================= */
 
-app.use(
-    (req, res) => {
-        if (req.originalUrl.startsWith("/api/")) {
-            return res.status(404).json({
-                success: false,
-                message: "API route not found.",
-                path: req.originalUrl,
-            });
-        }
-
-        return res.status(404).send("Page not found.");
+app.use((req, res) => {
+    if (req.originalUrl.startsWith("/api/")) {
+        return res.status(404).json({
+            success: false,
+            message: "API route not found.",
+            path: req.originalUrl,
+        });
     }
-);
+
+    return res.status(404).send("Page not found.");
+});
 
 /* =========================================================
-   ERROR HANDLER
+   GLOBAL ERROR HANDLER
 ========================================================= */
 
-app.use(
-    (err, req, res, next) => {
-        console.error("❌ SERVER ERROR:", err);
+app.use((err, req, res, next) => {
+    console.error("❌ SERVER ERROR:", err);
 
-        if (err.message === "Not allowed by CORS") {
-            return res.status(403).json({
-                success: false,
-                message: "CORS origin not allowed.",
-            });
-        }
-
-        if (req.originalUrl.startsWith("/api/")) {
-            return res.status(err.status || 500).json({
-                success: false,
-                message: err.message || "Internal server error",
-            });
-        }
-
-        return res.status(err.status || 500).send(
-            err.message || "Internal server error"
-        );
+    if (err.message === "Not allowed by CORS") {
+        return res.status(403).json({
+            success: false,
+            message: "CORS origin not allowed.",
+        });
     }
-);
+
+    if (req.originalUrl.startsWith("/api/")) {
+        return res.status(err.status || 500).json({
+            success: false,
+            message: err.message || "Internal server error",
+        });
+    }
+
+    return res.status(err.status || 500).send(
+        err.message || "Internal server error"
+    );
+});
 
 /* =========================================================
-   SERVER START (LOCAL ONLY)
+   SERVER START (LOCAL / VPS INSTANCES)
 ========================================================= */
 
 const PORT = process.env.PORT || 3000;
@@ -349,7 +301,7 @@ if (require.main === module) {
 }
 
 /* =========================================================
-   EXPORT FOR VERCEL
+   EXPORT FOR VERCEL / SERVERLESS
 ========================================================= */
 
 module.exports = app;
