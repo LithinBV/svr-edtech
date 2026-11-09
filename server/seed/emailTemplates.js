@@ -529,7 +529,7 @@ const seedEmailTemplates = async () => {
 
     if (!mongoUri) {
       throw new Error(
-        "MONGO_URI is not configured in your .env file."
+        "MONGODB_URI is not configured in your .env file."
       );
     }
 

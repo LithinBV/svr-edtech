@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import DetailField from "./DetailField";
@@ -22,20 +23,6 @@ const LeadInformation = ({ lead }) => {
         if (!hasPhone || !leadId) return;
 
         navigate(`/communications/whatsapp/${leadId}`, {
-            state: {
-                lead,
-            },
-        });
-    };
-
-    // =========================================================
-    // CALL
-    // =========================================================
-
-    const handleCall = () => {
-        if (!hasPhone || !leadId) return;
-
-        navigate(`/communications/calls/${leadId}`, {
             state: {
                 lead,
             },
@@ -392,7 +379,7 @@ const LeadInformation = ({ lead }) => {
                                     >
                                         <path d="M21 11.5a8.38 8.38 0 0 1-9 8.5 8.4 8.4 0 0 1-4.1-1.1L3 20l1.2-4.7A8.4 8.4 0 0 1 3 11.2a8.5 8.5 0 1 1 18 .3Z" />
 
-                                        <path d="M8.5 8.5c.2-.4.4-.4.7-.4h.5c.2 0 .4.1.5.4l.7 1.6c.1.2.1.4-.1.6l-.5.6c-.1.1-.1.3 0 .5.4.7 1 1.3 1.7 1.7.2.1.4.1.5-.1l.6-.7c.1-.2.3-.2.5-.1l1.6.7c.2.1.3.3.3.5v.5c0 .3-.1.5-.4.7-.4.3-1 .4-1.5.3-1-.2-2.1-.8-3.2-1.8-1.1-1-1.7-2.1-1.9-3.1-.1-.5 0-1.1.2-1.5Z" />
+                                        <path d="M8.5 8.5c.2-.4.4-.4.7-.4h.5c.2 0 .4.1.5.4l.7 1.6c.1.2 0 .6-.1.6l-.5.6c-.1.1-.1.3 0 .5.4.7 1 1.3 1.7 1.7.7.4.4.1.5-.1l.6-.7c.2-.2.3-.3.5-.1l1.6.7c.2.1.3.3.3.5v.5c0 .3-.1.5-.4.7-.4.3-1 .4-1.5.3-1-.2-2.1-.8-3.2-1.8-1.1-1-1.7-2.1-1.9-3.1-.1-.5 0-1.1.2-1.5Z" />
                                     </svg>
 
                                 </span>
@@ -428,14 +415,14 @@ const LeadInformation = ({ lead }) => {
                             </button>
 
                             {/* =================================================
-                                CALL
+                                CALL - DISABLED (FEATURE NOT DEVELOPED)
                             ================================================= */}
 
                             <button
                                 type="button"
-                                onClick={handleCall}
-                                disabled={!hasPhone || !leadId}
-                                className={`
+                                disabled={true}
+                                title="Calling feature is coming soon"
+                                className="
                                     group
                                     flex
                                     w-full
@@ -443,21 +430,16 @@ const LeadInformation = ({ lead }) => {
                                     gap-3
                                     rounded-xl
                                     border
+                                    border-slate-200
+                                    bg-slate-100
                                     px-4
                                     py-3
                                     text-sm
                                     font-semibold
-                                    transition-all
-                                    duration-200
-                                    disabled:cursor-not-allowed
-                                    disabled:opacity-60
-
-                                    ${
-                                        hasPhone && leadId
-                                            ? "border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
-                                            : "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
-                                    }
-                                `}
+                                    text-slate-400
+                                    cursor-not-allowed
+                                    opacity-60
+                                "
                             >
 
                                 <span
@@ -471,9 +453,6 @@ const LeadInformation = ({ lead }) => {
                                         rounded-lg
                                         bg-indigo-100
                                         text-indigo-600
-                                        transition
-                                        duration-200
-                                        group-hover:bg-indigo-200
                                     "
                                 >
 
@@ -498,29 +477,9 @@ const LeadInformation = ({ lead }) => {
                                     Call Lead
                                 </span>
 
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    className="
-                                        ml-auto
-                                        h-4
-                                        w-4
-                                        opacity-0
-                                        transition-all
-                                        duration-200
-                                        group-hover:translate-x-1
-                                        group-hover:opacity-100
-                                    "
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="m9 18 6-6-6-6"
-                                    />
-                                </svg>
+                                <span className="ml-auto text-xs font-medium">
+                                    Coming soon
+                                </span>
 
                             </button>
 
