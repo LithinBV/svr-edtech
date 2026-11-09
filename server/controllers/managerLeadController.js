@@ -1128,28 +1128,7 @@ const createManagerLead = async (
         }
 
 
-        // ====================================================
-        // GET MANAGER TEAM
-        // ====================================================
-
-        const team =
-            await getManagerTeam(
-                managerId
-            );
-
-
-        if (!team) {
-
-            return res.status(404).json({
-
-                success: false,
-
-                message:
-                    "Active team not found."
-
-            });
-
-        }
+        
 
 
         // ====================================================
