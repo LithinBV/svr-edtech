@@ -10,7 +10,7 @@ const createSuperAdmin = async () => {
 
         await connectDB();
 
-        const email = "lithinbv97@gmail.com";
+        const email = "aslamshaikh032001@gmail.com";
         const password = "123456789";
 
         // Check if Super Admin already exists
